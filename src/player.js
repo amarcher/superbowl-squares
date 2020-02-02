@@ -7,6 +7,11 @@ const baseStyle = {
 	marginBottom: 10,
 	marginRight: 5,
 	flex: '1 1 auto',
+	outline: 'none',
+
+	':focus': {
+		outline: 'none',
+	},
 };
 
 export default function Player({
@@ -14,7 +19,8 @@ export default function Player({
 	ownedSquares,
 	setActive,
 	color,
-	name
+	name,
+	isActive,
 }) {
 	const onClick = useCallback(() => {
 		setActive(id);
@@ -23,6 +29,7 @@ export default function Player({
 	const style = {
 		...baseStyle,
 		backgroundColor: color,
+		boxShadow: isActive ? 'black 0px 0px 5pt 1pt' : 'none',
 	};
 
 	return (

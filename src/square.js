@@ -1,6 +1,11 @@
 import React, { useCallback } from 'react';
 
 const baseStyle = {
+	outline: 'none',
+
+	':focus': {
+		outline: 'none',
+	},
 };
 
 export default function Square({

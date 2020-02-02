@@ -20,7 +20,7 @@ function getEmptySquare(id) {
 }
 
 const names = ['AMA', 'AYA', 'FB', 'JB', 'ZM', 'MZ'];
-const colors = ['#b7d4b7', '#0023b7', '#231F92', '#331F92', '#931F92', '#07d4b7'];
+const colors = ['#b7d4b7', '#e6ccca', '#9e9cd8', '#7fbdda', '#f3f0a3', '#d4070782'];
 
 function getEmptyPlayer(id) {
 	return {
@@ -56,6 +56,10 @@ function gridReducer(state, { type, payload }) {
 				},
 			};
 		case 'unclaim':
+			const currentOwnerId = state[payload.id].ownerId;
+			if (currentOwnerId !== payload.ownerId) {
+				return state;
+			}
 			return {
 				...state,
 				[payload.id]: {
@@ -74,6 +78,7 @@ const style = {
 	display: 'grid',
 	gridTemplateColumns: `repeat(11, [col-start] 1fr)`,
 	justifyItems: 'stretch',
+	gridGap: 0,
 };
 
 const lockButtonStyle = {
@@ -112,9 +117,10 @@ export default function Grid({
 			type: 'unclaim',
 			payload: {
 				id,
+				ownerId: activePlayerId,
 			},
 		});
- 	}, [dispatch]);
+ 	}, [dispatch, activePlayerId]);
 
 	const lock = useCallback(() => {
 		setIsLocked(true);
@@ -140,7 +146,7 @@ export default function Grid({
 		}}>
 			<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 				{Object.values(players).map(({ id, name, color }) => (
-					<Player key={id} id={id} name={name} color={color} ownedSquares={getSquaresOwnedByPlayer(id)} setActive={setActivePlayerId} />
+					<Player key={id} id={id} isActive={id === activePlayerId} name={name} color={color} ownedSquares={getSquaresOwnedByPlayer(id)} setActive={setActivePlayerId} />
 				))}
 				<button onClick={isLocked ? unlock : lock } style={lockButtonStyle}>
 					{isLocked ? 'Unlock' : 'Lock'}
