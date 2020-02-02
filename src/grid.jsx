@@ -9,9 +9,6 @@ const emptySquare = {
 	ownerId: undefined,
 };
 
-const emptyPlayer = {
-};
-
 function getEmptySquare(id) {
 	return {
 		...emptySquare,
@@ -24,7 +21,6 @@ const colors = ['#b7d4b7', '#e6ccca', '#9e9cd8', '#7fbdda', '#f3f0a3', '#d407078
 
 function getEmptyPlayer(id) {
 	return {
-		...emptyPlayer,
 		color: colors[id],
 		id: id,
 		name: names[id],
@@ -86,6 +82,11 @@ const lockButtonStyle = {
 	minHeight: 40,
 	borderRadius: 5,
 	marginBottom: 10,
+	outline: 'none',
+
+	':focus': {
+		outline: 'none',
+	},
 };
 
 export default function Grid({
@@ -93,7 +94,7 @@ export default function Grid({
 	onClick,
 }) {
 	const [grid, dispatch] = useReducer(gridReducer, initialGrid);
-	const [players, setPlayers] = useState('012345'.split('').reduce((players, playerId) => ({
+	const [players] = useState('012345'.split('').reduce((players, playerId) => ({
 		...players,
 		[playerId]: getEmptyPlayer(playerId),
 	}), {}));
@@ -102,25 +103,29 @@ export default function Grid({
 	const [sfScore, setSfScore] = useState(Array(10).fill('?'));
 	const [kcScore, setKcScore] = useState(Array(10).fill('?'));
 
- 	const claim = useCallback((id) => {
-		dispatch({
-			type: 'claim',
-			payload: {
-				id,
-				ownerId: activePlayerId,
-			},
-		});
- 	}, [dispatch, activePlayerId]);
+	const claim = useCallback((id) => {
+		if (!isLocked) {
+			dispatch({
+				type: 'claim',
+				payload: {
+					id,
+					ownerId: activePlayerId,
+				},
+			});
+		}
+	}, [dispatch, isLocked, activePlayerId]);
 
- 	const unclaim = useCallback((id) => {
-		dispatch({
-			type: 'unclaim',
-			payload: {
-				id,
-				ownerId: activePlayerId,
-			},
-		});
- 	}, [dispatch, activePlayerId]);
+	const unclaim = useCallback((id) => {
+		if (!isLocked) {
+			dispatch({
+				type: 'unclaim',
+				payload: {
+					id,
+					ownerId: activePlayerId,
+				},
+			});
+		}
+ 	}, [dispatch, isLocked, activePlayerId]);
 
 	const lock = useCallback(() => {
 		setIsLocked(true);
