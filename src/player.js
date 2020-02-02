@@ -5,6 +5,7 @@ const baseStyle = {
 	minHeight: 40,
 	borderRadius: 5,
 	marginBottom: 10,
+	marginRight: 5,
 	flex: '1 1 auto',
 };
 
