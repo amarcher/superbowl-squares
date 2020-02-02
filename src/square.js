@@ -5,26 +5,28 @@ const baseStyle = {
 
 export default function Square({
 	id,
-	isOwned,
+	ownerColor,
+	ownerName,
 	claim,
 	unclaim,
 }) {
 	const onClick = useCallback(() => {
-		if (isOwned) {
+		if (ownerColor) {
 			unclaim(id);
 		} else {
 			claim(id);
 		}
-	}, [claim, unclaim, id, isOwned]);
+	}, [claim, unclaim, id, ownerColor]);
 
 	const style = {
 		...baseStyle,
-		backgroundColor: isOwned ? 'green' : 'white',
+		backgroundColor: ownerColor ? ownerColor : 'white',
 	};
 
 	return (
 		<button onClick={onClick} style={style}>
 			<div className="square">
+				{ownerName}
 			</div>
 		</button>
 	);
