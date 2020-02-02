@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 
 const baseStyle = {
-	minWidth: 100,
 	minHeight: 40,
 	borderRadius: 5,
 	marginBottom: 10,
