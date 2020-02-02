@@ -1,0 +1,41 @@
+.container {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+}
+
+.control-container {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.player-container {
+	flex: 1 1 auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+}
+
+.grid-container {
+	height: 90vh;
+	width: 90vw;
+	display: grid;
+	grid-template-columns: repeat(11, [col-start] 1fr);
+	justify-items: stretch;
+	grid-gap: 0;
+}
+
+.button {
+	min-width: 50px;
+	min-height: 40px;
+	border-radius: 5px;
+	margin-bottom: 10px;
+	margin-left: 5px;
+	outline: none;
+}
+
+.button:focus {
+	outline: none;
+}

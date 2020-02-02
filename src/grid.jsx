@@ -1,9 +1,12 @@
-import React, { useReducer, useCallback, useState } from 'react';
+import React, { useReducer, useCallback, useState, useMemo } from 'react';
 import { getRandomDigits } from './utils';
 import Square from './square';
 import Player from './player';
 import Score from './score';
 import Legend from './legend';
+import EditPlayers from './editPlayers';
+import colors from './colors';
+import './Grid.css';
 
 const emptySquare = {
 	ownerId: undefined,
@@ -17,7 +20,11 @@ function getEmptySquare(id) {
 }
 
 const names = ['AMA', 'AYA', 'FB', 'JB', 'ZM', 'MZ'];
-const colors = ['#b7d4b7', '#e6ccca', '#9e9cd8', '#7fbdda', '#f3f0a3', '#d4070782'];
+
+const initialPlayers = Array(100).fill().map((_, id) => id).reduce((players, playerId) => ({
+	...players,
+	[playerId]: getEmptyPlayer(playerId),
+}), {});
 
 function getEmptyPlayer(id) {
 	return {
@@ -68,40 +75,20 @@ function gridReducer(state, { type, payload }) {
 	}
 }
 
-const style = {
-	height: '90vh',
-	width: '90vw',
-	display: 'grid',
-	gridTemplateColumns: `repeat(11, [col-start] 1fr)`,
-	justifyItems: 'stretch',
-	gridGap: 0,
-};
 
-const lockButtonStyle = {
-	minWidth: 50,
-	minHeight: 40,
-	borderRadius: 5,
-	marginBottom: 10,
-	outline: 'none',
-
-	':focus': {
-		outline: 'none',
-	},
-};
-
-export default function Grid({
-	isOwned,
-	onClick,
-}) {
+export default function Grid() {
 	const [grid, dispatch] = useReducer(gridReducer, initialGrid);
-	const [players] = useState('012345'.split('').reduce((players, playerId) => ({
-		...players,
-		[playerId]: getEmptyPlayer(playerId),
-	}), {}));
+	const [players, setPlayers] = useState(initialPlayers);
 	const [activePlayerId, setActivePlayerId] = useState('0');
 	const [isLocked, setIsLocked] = useState(false);
 	const [sfScore, setSfScore] = useState(Array(10).fill('?'));
 	const [kcScore, setKcScore] = useState(Array(10).fill('?'));
+	const [isModalOpen, setIsModalOpen] = useState(false);
+
+	const editPlayers = useCallback(() => setIsModalOpen(true), [setIsModalOpen]);
+	const closeModal = useCallback(() => setIsModalOpen(false), [setIsModalOpen]);
+
+	const namedPlayers = useMemo(() => Object.values(players).filter(({ name }) => !!name), [players])
 
 	const claim = useCallback((id) => {
 		if (!isLocked) {
@@ -144,21 +131,25 @@ export default function Grid({
  	}, [grid]);
 
 	return (
-		<div style={{
-			display: 'flex',
-  			justifyContent: 'center',
-  			flexDirection: 'column',
-		}}>
-			<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-				{Object.values(players).map(({ id, name, color }) => (
-					<Player key={id} id={id} isActive={id === activePlayerId} name={name} color={color} ownedSquares={getSquaresOwnedByPlayer(id)} setActive={setActivePlayerId} />
-				))}
-				<button onClick={isLocked ? unlock : lock } style={lockButtonStyle}>
-					{isLocked ? 'Unlock' : 'Lock'}
-				</button>
+		<div className="container">
+			<div className="control-container">
+				<div className="player-container">
+					{namedPlayers.map(({ id, name, color }) => (
+						<Player key={id} id={id} isActive={id === activePlayerId} name={name} color={color} ownedSquares={getSquaresOwnedByPlayer(id)} setActive={setActivePlayerId} />
+					))}
+				</div>
+				<div>
+					<button onClick={editPlayers} className="button">
+						Players
+					</button>
+					<button onClick={isLocked ? unlock : lock} className="button">
+						{isLocked ? 'Unlock' : 'Lock'}
+					</button>
+					<EditPlayers isOpen={isModalOpen} onClose={closeModal} players={players} setPlayers={setPlayers} />
+				</div>
 			</div>
 
-			<div style={style}>
+			<div className="grid-container">
 				<Legend x="SF" y="KC" />
 				{sfScore.map((digit, index) => (
 					<Score key={`sfDigit_${index}`} digit={digit} color="#AA0000" backgroundColor="#B3995D" />
