@@ -89,6 +89,8 @@ function gridReducer(state, { type, payload }) {
 
 export default function Grid() {
   const [grid, dispatch] = useReducer(gridReducer, initialGrid);
+  const [tbActualScore, setTbActualScore] = useState(0);
+  const [kcActualScore, setKcActualScore] = useState(0);
   const [players, setPlayers] = useState(initialPlayers);
   const [activePlayerId, setActivePlayerId] = useState("0");
   const [isLocked, setIsLocked] = useState(false);
@@ -140,6 +142,14 @@ export default function Grid() {
     setKcScore(getRandomDigits());
   }, []);
 
+  const setActualScore = useCallback(({ target: { name, value } }) => {
+    if (name === "kc-actual-score") {
+      setKcActualScore(value);
+    } else {
+      setTbActualScore(value);
+    }
+  }, []);
+
   const unlock = useCallback(() => {
     setIsLocked(false);
     setTbScore(Array(10).fill("?"));
@@ -168,6 +178,20 @@ export default function Grid() {
               setActive={setActivePlayerId}
             />
           ))}
+        </div>
+        <div className="score-container">
+          <input
+            onChange={setActualScore}
+            value={kcActualScore}
+            name="kc-actual-score"
+            placeholder="KC"
+          />
+          <input
+            onChange={setActualScore}
+            value={tbActualScore}
+            name="tb-actual-score"
+            placeholder="TB"
+          />
         </div>
         <div>
           <button onClick={editPlayers} className="button">
@@ -205,6 +229,13 @@ export default function Grid() {
               ownerName={name}
               claim={claim}
               unclaim={unclaim}
+              isCurrentWinner={
+                isLocked &&
+                kcScore[id[0]] ===
+                  `${kcActualScore}`.charAt(`${kcActualScore}`.length - 1) &&
+                tbScore[id[1]] ===
+                  `${tbActualScore}`.charAt(`${tbActualScore}`.length - 1)
+              }
             />
           );
           if (id[1] === "0") {
