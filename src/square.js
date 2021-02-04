@@ -27,8 +27,8 @@ export default function Square({
   const style = {
     ...baseStyle,
     backgroundColor: ownerColor ? ownerColor : "white",
-    boxShadow: isCurrentWinner ? "0  30px rgba(211, 203, 238)" : undefined,
-    zIndex: 10,
+    boxShadow: isCurrentWinner ? "rgb(82 212 0) 0px 0px 5px 5px" : undefined,
+    zIndex: isCurrentWinner ? 10 : undefined,
   };
 
   return (

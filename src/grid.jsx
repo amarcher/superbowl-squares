@@ -179,20 +179,6 @@ export default function Grid() {
             />
           ))}
         </div>
-        <div className="score-container">
-          <input
-            onChange={setActualScore}
-            value={kcActualScore}
-            name="kc-actual-score"
-            placeholder="KC"
-          />
-          <input
-            onChange={setActualScore}
-            value={tbActualScore}
-            name="tb-actual-score"
-            placeholder="TB"
-          />
-        </div>
         <div>
           <button onClick={editPlayers} className="button">
             Players
@@ -209,14 +195,36 @@ export default function Grid() {
         </div>
       </div>
 
+      <div className="score-container">
+        <input
+          onChange={setActualScore}
+          value={kcActualScore}
+          name="kc-actual-score"
+          placeholder="KC"
+          className="score-input kc"
+          type="number"
+          min="0"
+        />
+        {" - "}
+        <input
+          onChange={setActualScore}
+          value={tbActualScore}
+          name="tb-actual-score"
+          placeholder="TB"
+          className="score-input tb"
+          type="number"
+          min="0"
+        />
+      </div>
+
       <div className="grid-container">
         <Legend x="TB" y="KC" />
         {tbScore.map((digit, index) => (
           <Score
             key={`tbDigit_${index}`}
             digit={digit}
-            color="#AA0000"
-            backgroundColor="#B3995D"
+            color="#34302B"
+            backgroundColor="#FF7900"
           />
         ))}
         {fullIds.map((id) => {
