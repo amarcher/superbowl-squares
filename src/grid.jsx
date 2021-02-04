@@ -1,4 +1,10 @@
-import React, { useReducer, useCallback, useState, useMemo } from "react";
+import React, {
+  useReducer,
+  useCallback,
+  useState,
+  useMemo,
+  useEffect,
+} from "react";
 import { getRandomDigits } from "./utils";
 import Square from "./square";
 import Player from "./player";
@@ -7,6 +13,7 @@ import Legend from "./legend";
 import EditPlayers from "./editPlayers";
 import colors from "./colors";
 import "./Grid.css";
+import { LOCAL_STORAGE_KEY } from "./constants";
 
 const emptySquare = {
   ownerId: undefined,
@@ -21,7 +28,7 @@ function getEmptySquare(id) {
 
 const names = ["AMA", "OAS", "KYS", "AYA"];
 
-const initialPlayers = Array(100)
+const presetPlayers = Array(100)
   .fill()
   .map((_, id) => id)
   .reduce(
@@ -87,15 +94,23 @@ function gridReducer(state, { type, payload }) {
   }
 }
 
-export default function Grid() {
-  const [grid, dispatch] = useReducer(gridReducer, initialGrid);
+export default function Grid({
+  initialGridState,
+  initialPlayers,
+  initialKcScore,
+  initialTbScore,
+}) {
+  const [grid, dispatch] = useReducer(
+    gridReducer,
+    initialGridState || initialGrid
+  );
   const [tbActualScore, setTbActualScore] = useState(0);
   const [kcActualScore, setKcActualScore] = useState(0);
-  const [players, setPlayers] = useState(initialPlayers);
+  const [players, setPlayers] = useState(initialPlayers || presetPlayers);
   const [activePlayerId, setActivePlayerId] = useState("0");
-  const [isLocked, setIsLocked] = useState(false);
-  const [tbScore, setTbScore] = useState(Array(10).fill("?"));
-  const [kcScore, setKcScore] = useState(Array(10).fill("?"));
+  const [isLocked, setIsLocked] = useState(!!initialPlayers);
+  const [tbScore, setTbScore] = useState(initialTbScore || Array(10).fill("?"));
+  const [kcScore, setKcScore] = useState(initialKcScore || Array(10).fill("?"));
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const editPlayers = useCallback(() => setIsModalOpen(true), [setIsModalOpen]);
@@ -137,10 +152,25 @@ export default function Grid() {
   );
 
   const lock = useCallback(() => {
-    setIsLocked(true);
     setTbScore(getRandomDigits());
     setKcScore(getRandomDigits());
+    setIsLocked(true);
   }, []);
+
+  useEffect(() => {
+    if (isLocked && window.localStorage) {
+      localStorage.setItem(
+        LOCAL_STORAGE_KEY,
+        JSON.stringify({ tbScore, kcScore, grid, players })
+      );
+    }
+  }, [grid, isLocked, kcScore, players, tbScore]);
+
+  useEffect(() => {
+    if (!isLocked && window.localStorage) {
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
+  }, [isLocked]);
 
   const setActualScore = useCallback(({ target: { name, value } }) => {
     if (name === "kc-actual-score") {
