@@ -1,19 +1,10 @@
-import React from 'react';
+import React from "react";
+import "./Score.css";
 
-const style = {
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'center',
-};
-
-export default function Score({
-	digit,
-	backgroundColor,
-	color,
-}) {
-	return (
-		<div style={{...style, backgroundColor, color }}>
-			{digit}
-		</div>
-	);
+export default function Score({ digit, backgroundColor, color }) {
+  return (
+    <div style={{ backgroundColor, color }} className="score">
+      {digit}
+    </div>
+  );
 }

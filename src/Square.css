@@ -1,0 +1,19 @@
+.cell {
+  display: block;
+  overflow: hidden;
+  padding: 0;
+  text-align: center;
+  outline: none;
+  border-style: unset;
+  margin: -1px 0 0 -1px;
+  border: 1px dashed black;
+  border-collapse: collapse;
+}
+
+.locked .cell {
+  border: 1px solid black;
+}
+
+.cell:focus {
+  outline: none;
+}

@@ -1,0 +1,14 @@
+.score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: large;
+  margin: -1px 0 0 -1px;
+  border: 1px dashed black;
+  border-collapse: collapse;
+}
+
+.locked .score {
+  border: 1px solid black;
+}

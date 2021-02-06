@@ -1,8 +1,10 @@
 .container {
+  flex: 1 1 auto;
   display: flex;
   justify-content: center;
   flex-direction: column;
-  margin: 10px auto;
+  padding: 10px;
+  height: calc(100% - 20px);
 }
 
 .control-container {
@@ -21,21 +23,45 @@
 
 .score-container {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  margin: 10px auto;
+  margin: 6px auto 24px;
+}
+
+.score-label {
+  margin: 0 auto;
+  text-align: center;
+  flex: 0 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.score-divider {
+  padding: 10px;
 }
 
 .score-input {
-  max-width: 180px;
-  margin: 10px auto;
+  max-width: 100px;
   font-size: large;
   border-radius: 10px;
-  border: 0;
+  border: 1px solid black;
   text-align: center;
-  flex: 0 1 auto;
   padding: 10px;
   font-weight: bold;
+  outline: none;
+}
+.score-input:focus {
+  outline: none;
+}
+
+.score-input::-webkit-outer-spin-button,
+.score-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.score-input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 .kc {
@@ -49,21 +75,21 @@
 }
 
 .grid-container {
-  height: 90vh;
-  width: 90vw;
+  height: 90%;
   display: grid;
   grid-template-columns: repeat(11, [col-start] 1fr);
-  justify-items: stretch;
-  grid-gap: 0;
+  grid-template-rows: repeat(11, [row-start] 1fr);
 }
 
 .button {
-  min-width: 50px;
+  min-width: 68px;
   min-height: 40px;
   border-radius: 5px;
   margin-bottom: 10px;
   margin-left: 5px;
+  padding: 10px;
   outline: none;
+  border: 1px solid black;
 }
 
 .button:focus {

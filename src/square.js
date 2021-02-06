@@ -1,12 +1,6 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 
-const baseStyle = {
-  outline: "none",
-
-  ":focus": {
-    outline: "none",
-  },
-};
+import "./Square.css";
 
 export default function Square({
   id,
@@ -24,15 +18,17 @@ export default function Square({
     }
   }, [claim, unclaim, id, ownerColor]);
 
-  const style = {
-    ...baseStyle,
-    backgroundColor: ownerColor ? ownerColor : "white",
-    boxShadow: isCurrentWinner ? "rgb(82 212 0) 0px 0px 5px 5px" : undefined,
-    zIndex: isCurrentWinner ? 10 : undefined,
-  };
+  const style = useMemo(
+    () => ({
+      backgroundColor: ownerColor ? ownerColor : "white",
+      boxShadow: isCurrentWinner ? "rgb(82 212 0) 0px 0px 5px 5px" : undefined,
+      zIndex: isCurrentWinner ? 10 : undefined,
+    }),
+    [ownerColor, isCurrentWinner]
+  );
 
   return (
-    <button onClick={onClick} style={style}>
+    <button onClick={onClick} style={style} className="cell">
       <div className="square">{ownerName}</div>
     </button>
   );

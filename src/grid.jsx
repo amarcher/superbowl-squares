@@ -12,8 +12,8 @@ import Score from "./score";
 import Legend from "./legend";
 import EditPlayers from "./editPlayers";
 import colors from "./colors";
-import "./Grid.css";
 import { LOCAL_STORAGE_KEY } from "./constants";
+import "./Grid.css";
 
 const emptySquare = {
   ownerId: undefined,
@@ -107,7 +107,7 @@ export default function Grid({
   const [tbActualScore, setTbActualScore] = useState(0);
   const [kcActualScore, setKcActualScore] = useState(0);
   const [players, setPlayers] = useState(initialPlayers || presetPlayers);
-  const [activePlayerId, setActivePlayerId] = useState("0");
+  const [activePlayerId, setActivePlayerId] = useState(0);
   const [isLocked, setIsLocked] = useState(!!initialPlayers);
   const [tbScore, setTbScore] = useState(initialTbScore || Array(10).fill("?"));
   const [kcScore, setKcScore] = useState(initialKcScore || Array(10).fill("?"));
@@ -201,7 +201,7 @@ export default function Grid({
             <Player
               key={id}
               id={id}
-              isActive={id === activePlayerId}
+              isActive={!isLocked && id === activePlayerId}
               name={name}
               color={color}
               ownedSquares={getSquaresOwnedByPlayer(id)}
@@ -226,28 +226,34 @@ export default function Grid({
       </div>
 
       <div className="score-container">
-        <input
-          onChange={setActualScore}
-          value={kcActualScore}
-          name="kc-actual-score"
-          placeholder="KC"
-          className="score-input kc"
-          type="number"
-          min="0"
-        />
-        {" - "}
-        <input
-          onChange={setActualScore}
-          value={tbActualScore}
-          name="tb-actual-score"
-          placeholder="TB"
-          className="score-input tb"
-          type="number"
-          min="0"
-        />
+        <label className="score-label">
+          KC
+          <input
+            onChange={setActualScore}
+            value={kcActualScore}
+            name="kc-actual-score"
+            placeholder="KC"
+            className="score-input kc"
+            type="number"
+            min="0"
+          />
+        </label>
+        <div className="score-divider">-</div>
+        <label className="score-label">
+          TB
+          <input
+            onChange={setActualScore}
+            value={tbActualScore}
+            name="tb-actual-score"
+            placeholder="TB"
+            className="score-input tb"
+            type="number"
+            min="0"
+          />
+        </label>
       </div>
 
-      <div className="grid-container">
+      <div className={`grid-container${isLocked ? " locked" : ""}`}>
         <Legend x="TB" y="KC" />
         {tbScore.map((digit, index) => (
           <Score

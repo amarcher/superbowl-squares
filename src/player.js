@@ -1,41 +1,32 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from "react";
 
-const baseStyle = {
-	minHeight: 40,
-	borderRadius: 5,
-	marginBottom: 10,
-	marginRight: 5,
-	flex: '1 1 auto',
-	outline: 'none',
-
-	':focus': {
-		outline: 'none',
-	},
-};
+import "./Player.css";
 
 export default function Player({
-	id,
-	ownedSquares,
-	setActive,
-	color,
-	name,
-	isActive,
+  id,
+  ownedSquares,
+  setActive,
+  color,
+  name,
+  isActive,
 }) {
-	const onClick = useCallback(() => {
-		setActive(id);
-	}, [setActive, id]);
+  const onClick = useCallback(() => {
+    setActive(id);
+  }, [setActive, id]);
 
-	const style = {
-		...baseStyle,
-		backgroundColor: color,
-		boxShadow: isActive ? 'black 0px 0px 5pt 1pt' : 'none',
-	};
+  const style = useMemo(
+    () => ({
+      backgroundColor: color,
+      boxShadow: isActive ? "black 0px 0px 5pt 1pt" : "none",
+    }),
+    [color, isActive]
+  );
 
-	return (
-		<button onClick={onClick} style={style}>
-			<div className="player">
-				{name} ({ownedSquares.length})
-			</div>
-		</button>
-	);
+  return (
+    <button onClick={onClick} style={style} className="button player">
+      <div>
+        {name} ({ownedSquares.length})
+      </div>
+    </button>
+  );
 }
