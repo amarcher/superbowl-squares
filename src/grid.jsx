@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useEffect,
 } from "react";
+import { useUpdateScores } from "./hooks";
 import { getRandomDigits } from "./utils";
 import Square from "./square";
 import Player from "./player";
@@ -18,6 +19,8 @@ import "./Grid.css";
 const emptySquare = {
   ownerId: undefined,
 };
+
+const PERIOD = ["1st", "2nd", "3rd", "4th"];
 
 function getEmptySquare(id) {
   return {
@@ -106,12 +109,23 @@ export default function Grid({
   );
   const [tbActualScore, setTbActualScore] = useState(0);
   const [kcActualScore, setKcActualScore] = useState(0);
+  const [clock, setClock] = useState("0:00");
+  const [period, setPeriod] = useState(0);
   const [players, setPlayers] = useState(initialPlayers || presetPlayers);
   const [activePlayerId, setActivePlayerId] = useState(0);
   const [isLocked, setIsLocked] = useState(!!initialPlayers);
   const [tbScore, setTbScore] = useState(initialTbScore || Array(10).fill("?"));
   const [kcScore, setKcScore] = useState(initialKcScore || Array(10).fill("?"));
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAutoUpdating, setIsAutoUpdating] = useState(isLocked);
+
+  useUpdateScores(
+    isAutoUpdating,
+    setTbActualScore,
+    setKcActualScore,
+    setClock,
+    setPeriod
+  );
 
   const editPlayers = useCallback(() => setIsModalOpen(true), [setIsModalOpen]);
   const closeModal = useCallback(() => setIsModalOpen(false), [setIsModalOpen]);
@@ -155,6 +169,7 @@ export default function Grid({
     setTbScore(getRandomDigits());
     setKcScore(getRandomDigits());
     setIsLocked(true);
+    setIsAutoUpdating(true);
   }, []);
 
   useEffect(() => {
@@ -182,8 +197,13 @@ export default function Grid({
 
   const unlock = useCallback(() => {
     setIsLocked(false);
+    setIsAutoUpdating(false);
     setTbScore(Array(10).fill("?"));
     setKcScore(Array(10).fill("?"));
+  }, []);
+
+  const toggleIsAutoUpdating = useCallback(() => {
+    setIsAutoUpdating((wasAutoUpdating) => !wasAutoUpdating);
   }, []);
 
   const getSquaresOwnedByPlayer = useCallback(
@@ -236,6 +256,7 @@ export default function Grid({
             className="score-input kc"
             type="number"
             min="0"
+            disabled={isAutoUpdating}
           />
         </label>
         <div className="score-divider">-</div>
@@ -249,7 +270,24 @@ export default function Grid({
             className="score-input tb"
             type="number"
             min="0"
+            disabled={isAutoUpdating}
           />
+        </label>
+      </div>
+
+      <div className="time">
+        <div className="clock">{clock}</div>
+        <div className="period">{PERIOD[period] || ""}</div>
+      </div>
+
+      <div>
+        <label className="refresh-control">
+          <input
+            type="checkbox"
+            checked={isAutoUpdating}
+            onChange={toggleIsAutoUpdating}
+          />{" "}
+          Auto-update
         </label>
       </div>
 
