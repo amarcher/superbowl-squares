@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import "whatwg-fetch";
 
 const ESPN_ENDPOINT =
-  "http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
+  "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
 const INTERVAL = 30 * 1000;
 
 function get(endpoint) {
