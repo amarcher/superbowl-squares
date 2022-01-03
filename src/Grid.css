@@ -93,6 +93,166 @@
   background-color: #ff7900;
 }
 
+.bal {
+  background-color: #241773;
+  color: #000000;
+}
+
+.cin {
+  background-color: #fb4f14;
+  color: #000000;
+}
+
+.cle {
+  background-color: #311d00;
+  color: #ff3c00;
+}
+
+.pit {
+  background-color: #ffb612;
+  color: #101820;
+}
+
+.buf {
+  background-color: #00338d;
+  color: #c60c30;
+}
+
+.mia {
+  background-color: #008e97;
+  color: #fc4c02;
+}
+
+.ne {
+  background-color: #002244;
+  color: #c60c30;
+}
+
+.nyj {
+  background-color: #125740;
+  color: #000000;
+}
+
+.hou {
+  background-color: #03202f;
+  color: #a71930;
+}
+
+.ind {
+  background-color: #002c5f;
+  color: #a2aaad;
+}
+
+.jax {
+  background-color: #101820;
+  color: #d7a22a;
+}
+
+.ten {
+  background-color: #0c2340;
+  color: #4b92db;
+}
+
+.den {
+  background-color: #fb4f14;
+  color: #002244;
+}
+
+.kc {
+  background-color: #e31837;
+  color: #ffb81c;
+}
+
+.lv {
+  background-color: #000000;
+  color: #a5acaf;
+}
+
+.lac {
+  background-color: #0080c6;
+  color: #ffc20e;
+}
+
+.chi {
+  background-color: #0b162a;
+  color: #c83803;
+}
+
+.det {
+  background-color: #0076b6;
+  color: #b0b7bc;
+}
+
+.gb {
+  background-color: #203731;
+  color: #ffb612;
+}
+
+.min {
+  background-color: #4f2683;
+  color: #ffc62f;
+}
+
+.dal {
+  background-color: #003594;
+  color: #041e42;
+}
+
+.nyg {
+  background-color: #0b2265;
+  color: #a71930;
+}
+
+.phi {
+  background-color: #004c54;
+  color: #a5acaf;
+}
+
+.wsh {
+  background-color: #773141;
+  color: #ffb612;
+}
+
+.atl {
+  background-color: #a71930;
+  color: #000000;
+}
+
+.car {
+  background-color: #0085ca;
+  color: #101820;
+}
+
+.no {
+  background-color: #d3bc8d;
+  color: #101820;
+}
+
+.tb {
+  background-color: #d50a0a;
+  color: #ff7900;
+}
+
+.ari {
+  background-color: #97233f;
+  color: #000000;
+}
+
+.lar {
+  background-color: #003594;
+  color: #ffa300;
+}
+
+.sf {
+  background-color: #aa0000;
+  color: #b3995d;
+}
+
+.sea {
+  background-color: #002244;
+  color: #69be28;
+}
+
 .grid-container {
   height: 90%;
   display: grid;

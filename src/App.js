@@ -8,11 +8,13 @@ function App() {
   let players;
   let awayScore;
   let homeScore;
+  let homeTeam;
+  let awayTeam;
+  let gameId;
 
   try {
-    ({ grid, awayScore, homeScore, players } = JSON.parse(
-      localStorage.getItem(LOCAL_STORAGE_KEY)
-    ));
+    ({ grid, awayScore, homeScore, players, homeTeam, awayTeam, gameId } =
+      JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)));
   } catch {
     // do nothing
   }
@@ -24,6 +26,9 @@ function App() {
         initialHomeScore={homeScore}
         initialAwayScore={awayScore}
         initialPlayers={players}
+        initialHomeTeam={homeTeam}
+        initialAwayTeam={awayTeam}
+        initialGameId={gameId}
       />
     </div>
   );

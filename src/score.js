@@ -1,10 +1,7 @@
-import React from "react";
-import "./Score.css";
+import React from 'react';
+import './Score.css';
+import './Grid.css';
 
-export default function Score({ digit, backgroundColor, color }) {
-  return (
-    <div style={{ backgroundColor, color }} className="score">
-      {digit}
-    </div>
-  );
+export default function Score({ digit, className }) {
+  return <div className={`score ${className}`}>{digit}</div>;
 }

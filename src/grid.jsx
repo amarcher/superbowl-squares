@@ -102,6 +102,9 @@ export default function Grid({
   initialPlayers,
   initialAwayScore,
   initialHomeScore,
+  initialHomeTeam,
+  initialAwayTeam,
+  initialGameId,
 }) {
   const [grid, dispatch] = useReducer(
     gridReducer,
@@ -109,8 +112,6 @@ export default function Grid({
   );
   const [homeActualScore, setHomeActualScore] = useState(0);
   const [awayActualScore, setAwayActualScore] = useState(0);
-  const [clock, setClock] = useState('0:00');
-  const [period, setPeriod] = useState(0);
   const [players, setPlayers] = useState(initialPlayers || presetPlayers);
   const [activePlayerId, setActivePlayerId] = useState(0);
   const [isLocked, setIsLocked] = useState(!!initialPlayers);
@@ -123,12 +124,13 @@ export default function Grid({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAutoUpdating, setIsAutoUpdating] = useState(isLocked);
 
-  useUpdateScores(
+  const { homeTeam, awayTeam, clock, period, gameId } = useUpdateScores(
     isAutoUpdating,
     setHomeActualScore,
     setAwayActualScore,
-    setClock,
-    setPeriod
+    initialHomeTeam,
+    initialAwayTeam,
+    initialGameId
   );
 
   const editPlayers = useCallback(() => setIsModalOpen(true), [setIsModalOpen]);
@@ -180,10 +182,27 @@ export default function Grid({
     if (isLocked && window.localStorage) {
       localStorage.setItem(
         LOCAL_STORAGE_KEY,
-        JSON.stringify({ homeScore, awayScore, grid, players })
+        JSON.stringify({
+          homeScore,
+          awayScore,
+          grid,
+          players,
+          homeTeam,
+          awayTeam,
+          gameId,
+        })
       );
     }
-  }, [grid, isLocked, awayScore, players, homeScore]);
+  }, [
+    grid,
+    isLocked,
+    awayScore,
+    players,
+    homeScore,
+    homeTeam,
+    awayTeam,
+    gameId,
+  ]);
 
   useEffect(() => {
     if (!isLocked && window.localStorage) {
@@ -251,13 +270,13 @@ export default function Grid({
 
       <div className="score-container">
         <label className="score-label">
-          AWAY
+          {awayTeam}
           <input
             onChange={setActualScore}
             value={awayActualScore}
             name="away-actual-score"
-            placeholder="AWAY"
-            className="score-input away"
+            placeholder={awayTeam}
+            className={`score-input ${awayTeam.toLowerCase()}`}
             type="number"
             min="0"
             disabled={isAutoUpdating}
@@ -265,13 +284,13 @@ export default function Grid({
         </label>
         <div className="score-divider">-</div>
         <label className="score-label">
-          HOME
+          {homeTeam}
           <input
             onChange={setActualScore}
             value={homeActualScore}
             name="home-actual-score"
-            placeholder="HOME"
-            className="score-input home"
+            placeholder={homeTeam}
+            className={`score-input ${homeTeam.toLowerCase()}`}
             type="number"
             min="0"
             disabled={isAutoUpdating}
@@ -296,13 +315,12 @@ export default function Grid({
       </div>
 
       <div className={`grid-container${isLocked ? ' locked' : ''}`}>
-        <Legend x="HOME" y="AWAY" />
+        <Legend x={homeTeam} y={awayTeam} />
         {homeScore.map((digit, index) => (
           <Score
             key={`homeDigit_${index}`}
             digit={digit}
-            color="#34302B"
-            backgroundColor="#FF7900"
+            className={homeTeam.toLowerCase()}
           />
         ))}
         {fullIds.map((id) => {
@@ -331,11 +349,7 @@ export default function Grid({
             const key = `awayDigit_${digit === '?' ? id[0] : digit}`;
             return (
               <React.Fragment key={key}>
-                <Score
-                  digit={digit}
-                  color="#FFB81C"
-                  backgroundColor="#E31837"
-                />
+                <Score digit={digit} className={awayTeam.toLowerCase()} />
                 {square}
               </React.Fragment>
             );
