@@ -1,6 +1,6 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from 'react';
 
-import "./Square.css";
+import './Square.css';
 
 export default function Square({
   id,
@@ -20,9 +20,9 @@ export default function Square({
 
   const style = useMemo(
     () => ({
-      backgroundColor: ownerColor ? ownerColor : "white",
-      boxShadow: isCurrentWinner ? "rgb(82 212 0) 0px 0px 5px 5px" : undefined,
-      zIndex: isCurrentWinner ? 10 : undefined,
+      backgroundColor: ownerColor ? ownerColor : 'white',
+      boxShadow: isCurrentWinner ? 'rgb(82 212 0) 0px 0px 5px 5px' : undefined,
+      zIndex: isCurrentWinner ? 0 : undefined,
     }),
     [ownerColor, isCurrentWinner]
   );
