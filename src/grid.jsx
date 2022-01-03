@@ -251,12 +251,12 @@ export default function Grid({
 
       <div className="score-container">
         <label className="score-label">
-          KC
+          AWAY
           <input
             onChange={setActualScore}
             value={awayActualScore}
             name="away-actual-score"
-            placeholder="KC"
+            placeholder="AWAY"
             className="score-input away"
             type="number"
             min="0"
@@ -265,12 +265,12 @@ export default function Grid({
         </label>
         <div className="score-divider">-</div>
         <label className="score-label">
-          TB
+          HOME
           <input
             onChange={setActualScore}
             value={homeActualScore}
             name="home-actual-score"
-            placeholder="TB"
+            placeholder="HOME"
             className="score-input home"
             type="number"
             min="0"
@@ -296,7 +296,7 @@ export default function Grid({
       </div>
 
       <div className={`grid-container${isLocked ? ' locked' : ''}`}>
-        <Legend x="TB" y="KC" />
+        <Legend x="HOME" y="AWAY" />
         {homeScore.map((digit, index) => (
           <Score
             key={`homeDigit_${index}`}

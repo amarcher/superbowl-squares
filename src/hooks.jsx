@@ -2,27 +2,33 @@ import { useCallback, useEffect, useRef } from 'react';
 import 'whatwg-fetch';
 
 const ESPN_ENDPOINT =
-  'https://site.api.espn.com/apis/site/v2/sports/foohomeall/nfl/scoreboard';
+  'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 const INTERVAL = 30 * 1000;
 
 function get(endpoint) {
   return fetch(endpoint).then((response) => response.json());
 }
 
+const gameData = { away: 0, home: 0, clock: '0:00', period: 0, eventIndex: 0 };
+
+function getGameData() {
+  return get(ESPN_ENDPOINT);
+}
+
 function getScores() {
-  const gameData = { away: 0, home: 0, clock: '0:00', period: 0 };
-  return get(ESPN_ENDPOINT).then((payload) => {
+  return getGameData().then((payload) => {
+    console.log(payload);
     const competition =
       payload?.events &&
-      payload?.events[0] &&
-      payload?.events[0].competitions &&
-      payload?.events[0].competitions[0];
+      payload?.events[gameData.eventIndex] &&
+      payload?.events[gameData.eventIndex].competitions &&
+      payload?.events[gameData.eventIndex].competitions[0];
 
     const { competitors, status } = competition || {};
 
     if (competitors) {
       competitors.forEach((competitor) => {
-        if (competitor?.id === '27') {
+        if (competitor?.homeAway === 'home') {
           gameData.home = parseInt(competitor.score, 10);
         } else {
           gameData.away = parseInt(competitor.score, 10);
