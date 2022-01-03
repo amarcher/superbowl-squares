@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef } from "react";
-import "whatwg-fetch";
+import { useCallback, useEffect, useRef } from 'react';
+import 'whatwg-fetch';
 
 const ESPN_ENDPOINT =
-  "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
+  'https://site.api.espn.com/apis/site/v2/sports/foohomeall/nfl/scoreboard';
 const INTERVAL = 30 * 1000;
 
 function get(endpoint) {
@@ -10,7 +10,7 @@ function get(endpoint) {
 }
 
 function getScores() {
-  const gameData = { kc: 0, tb: 0, clock: "0:00", period: 0 };
+  const gameData = { away: 0, home: 0, clock: '0:00', period: 0 };
   return get(ESPN_ENDPOINT).then((payload) => {
     const competition =
       payload?.events &&
@@ -22,10 +22,10 @@ function getScores() {
 
     if (competitors) {
       competitors.forEach((competitor) => {
-        if (competitor?.id === "27") {
-          gameData.tb = parseInt(competitor.score, 10);
+        if (competitor?.id === '27') {
+          gameData.home = parseInt(competitor.score, 10);
         } else {
-          gameData.kc = parseInt(competitor.score, 10);
+          gameData.away = parseInt(competitor.score, 10);
         }
       });
     }
@@ -50,7 +50,7 @@ function useInterval(callback, delay) {
   useEffect(() => {
     const tick = () => savedCallback.current();
 
-    if (typeof delay === "number") {
+    if (typeof delay === 'number') {
       tick();
       intervalId.current = window.setInterval(tick, delay);
       return () => window.clearInterval(intervalId.current);
@@ -62,21 +62,21 @@ function useInterval(callback, delay) {
 
 export function useUpdateScores(
   shouldUpdate,
-  setTbScore,
-  setKcScore,
+  setHomeScore,
+  setAwayScore,
   setClock,
   setPeriod
 ) {
   const callback = useCallback(
     () =>
-      getScores().then(({ tb, kc, clock, period }) => {
-        console.log({ tb, kc, clock, period });
-        setTbScore(tb);
-        setKcScore(kc);
+      getScores().then(({ home, away, clock, period }) => {
+        console.log({ home, away, clock, period });
+        setHomeScore(home);
+        setAwayScore(away);
         if (setClock) setClock(clock);
         if (setPeriod) setPeriod(period);
       }),
-    [setClock, setKcScore, setPeriod, setTbScore]
+    [setClock, setAwayScore, setPeriod, setHomeScore]
   );
 
   const intervalId = useInterval(callback, shouldUpdate ? INTERVAL : null);

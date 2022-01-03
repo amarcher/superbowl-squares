@@ -4,23 +4,23 @@ import React, {
   useState,
   useMemo,
   useEffect,
-} from "react";
-import { useUpdateScores } from "./hooks";
-import { getRandomDigits } from "./utils";
-import Square from "./square";
-import Player from "./player";
-import Score from "./score";
-import Legend from "./legend";
-import EditPlayers from "./editPlayers";
-import colors from "./colors";
-import { LOCAL_STORAGE_KEY } from "./constants";
-import "./Grid.css";
+} from 'react';
+import { useUpdateScores } from './hooks';
+import { getRandomDigits } from './utils';
+import Square from './square';
+import Player from './player';
+import Score from './score';
+import Legend from './legend';
+import EditPlayers from './editPlayers';
+import colors from './colors';
+import { LOCAL_STORAGE_KEY } from './constants';
+import './Grid.css';
 
 const emptySquare = {
   ownerId: undefined,
 };
 
-const PERIOD = ['', "1st", "2nd", "3rd", "4th"];
+const PERIOD = ['', '1st', '2nd', '3rd', '4th'];
 
 function getEmptySquare(id) {
   return {
@@ -29,7 +29,7 @@ function getEmptySquare(id) {
   };
 }
 
-const names = ["AMA", "OAS", "KYS", "AYA"];
+const names = ['ENTER', 'PLAYERS’', 'INITIALS'];
 
 const presetPlayers = Array(100)
   .fill()
@@ -50,7 +50,7 @@ function getEmptyPlayer(id) {
   };
 }
 
-const ids = "0123456789".split("");
+const ids = '0123456789'.split('');
 const fullIds = ids.reduce(
   (grid, rowNumber) => [
     ...grid,
@@ -72,7 +72,7 @@ const initialGrid = fullIds.reduce(
 
 function gridReducer(state, { type, payload }) {
   switch (type) {
-    case "claim":
+    case 'claim':
       return {
         ...state,
         [payload.id]: {
@@ -80,7 +80,7 @@ function gridReducer(state, { type, payload }) {
           ownerId: payload.ownerId,
         },
       };
-    case "unclaim":
+    case 'unclaim':
       const currentOwnerId = state[payload.id].ownerId;
       if (currentOwnerId !== payload.ownerId) {
         return state;
@@ -100,29 +100,33 @@ function gridReducer(state, { type, payload }) {
 export default function Grid({
   initialGridState,
   initialPlayers,
-  initialKcScore,
-  initialTbScore,
+  initialAwayScore,
+  initialHomeScore,
 }) {
   const [grid, dispatch] = useReducer(
     gridReducer,
     initialGridState || initialGrid
   );
-  const [tbActualScore, setTbActualScore] = useState(0);
-  const [kcActualScore, setKcActualScore] = useState(0);
-  const [clock, setClock] = useState("0:00");
+  const [homeActualScore, setHomeActualScore] = useState(0);
+  const [awayActualScore, setAwayActualScore] = useState(0);
+  const [clock, setClock] = useState('0:00');
   const [period, setPeriod] = useState(0);
   const [players, setPlayers] = useState(initialPlayers || presetPlayers);
   const [activePlayerId, setActivePlayerId] = useState(0);
   const [isLocked, setIsLocked] = useState(!!initialPlayers);
-  const [tbScore, setTbScore] = useState(initialTbScore || Array(10).fill("?"));
-  const [kcScore, setKcScore] = useState(initialKcScore || Array(10).fill("?"));
+  const [homeScore, setHomeScore] = useState(
+    initialHomeScore || Array(10).fill('?')
+  );
+  const [awayScore, setAwayScore] = useState(
+    initialAwayScore || Array(10).fill('?')
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAutoUpdating, setIsAutoUpdating] = useState(isLocked);
 
   useUpdateScores(
     isAutoUpdating,
-    setTbActualScore,
-    setKcActualScore,
+    setHomeActualScore,
+    setAwayActualScore,
     setClock,
     setPeriod
   );
@@ -139,7 +143,7 @@ export default function Grid({
     (id) => {
       if (!isLocked) {
         dispatch({
-          type: "claim",
+          type: 'claim',
           payload: {
             id,
             ownerId: activePlayerId,
@@ -154,7 +158,7 @@ export default function Grid({
     (id) => {
       if (!isLocked) {
         dispatch({
-          type: "unclaim",
+          type: 'unclaim',
           payload: {
             id,
             ownerId: activePlayerId,
@@ -166,8 +170,8 @@ export default function Grid({
   );
 
   const lock = useCallback(() => {
-    setTbScore(getRandomDigits());
-    setKcScore(getRandomDigits());
+    setHomeScore(getRandomDigits());
+    setAwayScore(getRandomDigits());
     setIsLocked(true);
     setIsAutoUpdating(true);
   }, []);
@@ -176,10 +180,10 @@ export default function Grid({
     if (isLocked && window.localStorage) {
       localStorage.setItem(
         LOCAL_STORAGE_KEY,
-        JSON.stringify({ tbScore, kcScore, grid, players })
+        JSON.stringify({ homeScore, awayScore, grid, players })
       );
     }
-  }, [grid, isLocked, kcScore, players, tbScore]);
+  }, [grid, isLocked, awayScore, players, homeScore]);
 
   useEffect(() => {
     if (!isLocked && window.localStorage) {
@@ -188,18 +192,18 @@ export default function Grid({
   }, [isLocked]);
 
   const setActualScore = useCallback(({ target: { name, value } }) => {
-    if (name === "kc-actual-score") {
-      setKcActualScore(value);
+    if (name === 'away-actual-score') {
+      setAwayActualScore(value);
     } else {
-      setTbActualScore(value);
+      setHomeActualScore(value);
     }
   }, []);
 
   const unlock = useCallback(() => {
     setIsLocked(false);
     setIsAutoUpdating(false);
-    setTbScore(Array(10).fill("?"));
-    setKcScore(Array(10).fill("?"));
+    setHomeScore(Array(10).fill('?'));
+    setAwayScore(Array(10).fill('?'));
   }, []);
 
   const toggleIsAutoUpdating = useCallback(() => {
@@ -234,7 +238,7 @@ export default function Grid({
             Players
           </button>
           <button onClick={isLocked ? unlock : lock} className="button">
-            {isLocked ? "Unlock" : "Lock"}
+            {isLocked ? 'Unlock' : 'Lock'}
           </button>
           <EditPlayers
             isOpen={isModalOpen}
@@ -250,10 +254,10 @@ export default function Grid({
           KC
           <input
             onChange={setActualScore}
-            value={kcActualScore}
-            name="kc-actual-score"
+            value={awayActualScore}
+            name="away-actual-score"
             placeholder="KC"
-            className="score-input kc"
+            className="score-input away"
             type="number"
             min="0"
             disabled={isAutoUpdating}
@@ -264,10 +268,10 @@ export default function Grid({
           TB
           <input
             onChange={setActualScore}
-            value={tbActualScore}
-            name="tb-actual-score"
+            value={homeActualScore}
+            name="home-actual-score"
             placeholder="TB"
-            className="score-input tb"
+            className="score-input home"
             type="number"
             min="0"
             disabled={isAutoUpdating}
@@ -277,7 +281,7 @@ export default function Grid({
 
       <div className="time">
         <div className="clock">{clock}</div>
-        <div className="period">{PERIOD[period] || ""}</div>
+        <div className="period">{PERIOD[period] || ''}</div>
       </div>
 
       <div>
@@ -286,16 +290,16 @@ export default function Grid({
             type="checkbox"
             checked={isAutoUpdating}
             onChange={toggleIsAutoUpdating}
-          />{" "}
+          />{' '}
           Auto-update
         </label>
       </div>
 
-      <div className={`grid-container${isLocked ? " locked" : ""}`}>
+      <div className={`grid-container${isLocked ? ' locked' : ''}`}>
         <Legend x="TB" y="KC" />
-        {tbScore.map((digit, index) => (
+        {homeScore.map((digit, index) => (
           <Score
-            key={`tbDigit_${index}`}
+            key={`homeDigit_${index}`}
             digit={digit}
             color="#34302B"
             backgroundColor="#FF7900"
@@ -313,16 +317,18 @@ export default function Grid({
               unclaim={unclaim}
               isCurrentWinner={
                 isLocked &&
-                kcScore[id[0]] ===
-                  `${kcActualScore}`.charAt(`${kcActualScore}`.length - 1) &&
-                tbScore[id[1]] ===
-                  `${tbActualScore}`.charAt(`${tbActualScore}`.length - 1)
+                awayScore[id[0]] ===
+                  `${awayActualScore}`.charAt(
+                    `${awayActualScore}`.length - 1
+                  ) &&
+                homeScore[id[1]] ===
+                  `${homeActualScore}`.charAt(`${homeActualScore}`.length - 1)
               }
             />
           );
-          if (id[1] === "0") {
-            const digit = kcScore[id[0]];
-            const key = `kcDigit_${digit === "?" ? id[0] : digit}`;
+          if (id[1] === '0') {
+            const digit = awayScore[id[0]];
+            const key = `awayDigit_${digit === '?' ? id[0] : digit}`;
             return (
               <React.Fragment key={key}>
                 <Score

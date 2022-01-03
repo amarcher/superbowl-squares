@@ -1,16 +1,16 @@
-import React from "react";
-import Grid from "./grid";
-import { LOCAL_STORAGE_KEY } from "./constants";
-import "./App.css";
+import React from 'react';
+import Grid from './grid';
+import { LOCAL_STORAGE_KEY } from './constants';
+import './App.css';
 
 function App() {
-  let grid = undefined;
-  let players = undefined;
-  let kcScore = undefined;
-  let tbScore = undefined;
+  let grid;
+  let players;
+  let awayScore;
+  let homeScore;
 
   try {
-    ({ grid, kcScore, tbScore, players } = JSON.parse(
+    ({ grid, awayScore, homeScore, players } = JSON.parse(
       localStorage.getItem(LOCAL_STORAGE_KEY)
     ));
   } catch {
@@ -21,8 +21,8 @@ function App() {
     <div className="App">
       <Grid
         initialGridState={grid}
-        initialTbScore={tbScore}
-        initialKcScore={kcScore}
+        initialHomeScore={homeScore}
+        initialAwayScore={awayScore}
         initialPlayers={players}
       />
     </div>
