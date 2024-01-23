@@ -47,7 +47,7 @@ function getScores(gameId) {
       payload?.events &&
       payload?.events[gameData.eventIndex] &&
       payload?.events[gameData.eventIndex].competitions &&
-      payload?.events[gameData.eventIndex].competitions[1];
+      payload?.events[gameData.eventIndex].competitions[0];
 
     if (payload?.events[gameData.eventIndex]) {
       gameData.gameId = payload.events[gameData.eventIndex].id;
