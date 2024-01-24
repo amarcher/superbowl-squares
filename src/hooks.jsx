@@ -23,21 +23,8 @@ export const INITIAL_GAME_TEMPLATE = {
 
 let gameData = { ...INITIAL_GAME_TEMPLATE };
 
-let rawData = {};
-
 function getGameData() {
-  return get(ESPN_ENDPOINT).then((data) => {
-    rawData = data;
-    return data;
-  });
-}
-
-function getEventIndex(gameId) {
-  return (
-    rawData?.events?.findIndex((event) => {
-      return event?.id === gameId;
-    }) || -1
-  );
+  return get(ESPN_ENDPOINT);
 }
 
 function getGameFromEvent(event) {
@@ -70,12 +57,10 @@ function getGameFromEvent(event) {
 
 function getScores(gameId) {
   return getGameData().then((payload) => {
-    const eventIndex = getEventIndex(gameId);
-    if (rawData?.events && eventIndex !== -1) {
-      gameData.eventIndex = eventIndex;
-    }
-
     const games = payload?.events?.map(getGameFromEvent);
+    const eventIndex = games.findIndex((game) => game.gameId === gameId);
+    gameData.eventIndex = eventIndex !== -1 ? eventIndex : 0;
+
     const game = games[gameData.eventIndex];
     gameData.games = games;
     gameData.gameId = game.gameId;
