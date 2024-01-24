@@ -387,8 +387,8 @@ export default function Grid({
           return square;
         })}
       </div>
-
-      <h2>In one score...</h2>
+      {/* Put below in a modal! */}
+      {/* <h2>In one score...</h2>
       {allNextScores(homeActualScore, awayActualScore).map((nextScore, idx) => {
         const ownerName = scoreToOwner(nextScore.home, nextScore.away)?.name;
 
@@ -402,7 +402,7 @@ export default function Grid({
             the lead! ({nextScore.away}-{nextScore.home})
           </div>
         );
-      })}
+      })} */}
     </div>
   );
 }

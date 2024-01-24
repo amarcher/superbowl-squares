@@ -4,6 +4,12 @@ const SCORES = {
   touchdownExtra: 8,
   touchdownMiss: 6,
   safety: 2,
+  /**
+   * Below in comments for completeness, but we don't
+   * want to show them in practice
+   */
+  // afterScoreExtraPoint: 1,
+  // forceTurnoverScore: 2
 };
 
 /**
