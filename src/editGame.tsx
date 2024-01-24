@@ -1,6 +1,15 @@
 import React, { useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import type Game from './types/game';
 import './Modal.css';
+
+interface Props {
+  setGameId: (gameId?: string) => void;
+  gameId?: string;
+  onClose: () => void;
+  isOpen: boolean;
+  games: Game[];
+}
 
 export default function EditGame({
   setGameId,
@@ -8,9 +17,9 @@ export default function EditGame({
   onClose,
   isOpen,
   games,
-}) {
+}: Props) {
   const setGame = useCallback(
-    (e) => {
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
       e.preventDefault();
 
       const {

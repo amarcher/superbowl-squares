@@ -17,7 +17,7 @@ const SCORES = {
  * @param {number} homeScore
  * @param {number} awayScore
  */
-export function allNextScores(homeScore, awayScore) {
+export function allNextScores(homeScore: number, awayScore: number) {
   const scoreOptions = Object.entries(SCORES);
   const combinations = [];
 
@@ -30,13 +30,13 @@ export function allNextScores(homeScore, awayScore) {
       home: homeScoreOption,
       away: awayScore,
       type: scoreType,
-      scorer: "home",
+      scorer: 'home',
     });
     combinations.push({
       home: homeScore,
       away: awayScoreOption,
       type: scoreType,
-      scorer: "away",
+      scorer: 'away',
     });
   }
 
@@ -48,6 +48,6 @@ export function allNextScores(homeScore, awayScore) {
  * @param {number} awayScore
  * @returns {string}
  */
-export function scoreToOwnerKey(homeScore, awayScore) {
+export function scoreToOwnerKey(homeScore: number, awayScore: number): string {
   return `${homeScore},${awayScore}`;
 }

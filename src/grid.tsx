@@ -15,16 +15,19 @@ import Legend from './legend';
 import EditPlayers from './editPlayers';
 import EditGame from './editGame';
 import colors from './colors';
+import type GridType from './types/grid';
 import { LOCAL_STORAGE_KEY } from './constants';
 import './Grid.css';
+import type SquareType from './types/square';
+import type PlayerType from './types/player';
 
 const emptySquare = {
   ownerId: undefined,
-};
+} as SquareType;
 
 const PERIOD = ['', '1st', '2nd', '3rd', '4th'];
 
-function getEmptySquare(id) {
+function getEmptySquare(id: string): SquareType {
   return {
     ...emptySquare,
     id: id,
@@ -33,59 +36,62 @@ function getEmptySquare(id) {
 
 const names = ['ENTER', 'PLAYERS’', 'INITIALS'];
 
-const presetPlayers = Array(100)
-  .fill()
+const presetPlayers: Record<string, PlayerType> = Array(100)
+  .fill(undefined)
   .map((_, id) => id)
   .reduce(
     (players, playerId) => ({
       ...players,
       [playerId]: getEmptyPlayer(playerId),
     }),
-    {}
+    {} as Record<string, PlayerType>
   );
 
-function getEmptyPlayer(id) {
+function getEmptyPlayer(id: number | string): PlayerType {
   return {
-    color: colors[id],
-    id: id,
-    name: names[id],
+    color: colors[typeof id === 'number' ? id : parseInt(id, 10)],
+    id: String(id),
+    name: names[typeof id === 'number' ? id : parseInt(id, 10)],
   };
 }
 
 const ids = '0123456789'.split('');
 const fullIds = ids.reduce(
-  (grid, rowNumber) => [
+  (grid, rowNumber: string) => [
     ...grid,
     ...ids.reduce(
-      (row, columnNumber) => [...row, `${rowNumber}${columnNumber}`],
+      (row: string[], columnNumber: string) => [
+        ...row,
+        `${rowNumber}${columnNumber}`,
+      ],
       []
     ),
   ],
-  []
+  [] as string[]
 );
 
-const initialGrid = fullIds.reduce(
+const initialGrid: GridType = fullIds.reduce(
   (grid, id) => ({
     ...grid,
     [id]: getEmptySquare(id),
   }),
-  {}
+  {} as GridType
 );
 
-function randomizeGridForOwnerIds(ownerIds) {
+function randomizeGridForOwnerIds(ownerIds: string[]) {
   return shuffle(fullIds).reduce(
-    (grid, id, index) => ({
+    (grid: GridType, id: string, index: number) => ({
       ...grid,
       [id]: {
         id,
         ownerId: ownerIds[index % ownerIds.length],
       },
     }),
-    {}
+    {} as GridType
   );
 }
 
-function gridReducer(state, { type, payload }) {
+function gridReducer(state: GridType, { type, payload }: any) {
   switch (type) {
     case 'claim':
       return {
@@ -115,6 +121,16 @@ function gridReducer(state, { type, payload }) {
   }
 }
 
+interface Props {
+  initialGridState?: GridType;
+  initialPlayers?: Record<string, PlayerType>;
+  initialAwayScore?: number[];
+  initialHomeScore?: number[];
+  initialHomeTeam?: string;
+  initialAwayTeam?: string;
+  initialGameId?: string;
+}
+
 export default function Grid({
   initialGridState,
   initialPlayers,
@@ -123,7 +139,7 @@ export default function Grid({
   initialHomeTeam,
   initialAwayTeam,
   initialGameId,
-}) {
+}: Props) {
   const [grid, dispatch] = useReducer(
     gridReducer,
     initialGridState || initialGrid
@@ -175,7 +191,7 @@ export default function Grid({
   );
 
   const claim = useCallback(
-    (id) => {
+    (id: string) => {
       if (!isLocked) {
         dispatch({
           type: 'claim',
@@ -190,7 +206,7 @@ export default function Grid({
   );
 
   const unclaim = useCallback(
-    (id) => {
+    (id: string) => {
       if (!isLocked) {
         dispatch({
           type: 'unclaim',
@@ -243,13 +259,16 @@ export default function Grid({
     }
   }, [isLocked]);
 
-  const setActualScore = useCallback(({ target: { name, value } }) => {
-    if (name === 'away-actual-score') {
-      setAwayActualScore(value);
-    } else {
-      setHomeActualScore(value);
-    }
-  }, []);
+  const setActualScore = useCallback(
+    ({ target: { name, value } }: React.ChangeEvent<HTMLInputElement>) => {
+      if (name === 'away-actual-score') {
+        setAwayActualScore(parseInt(value, 10));
+      } else {
+        setHomeActualScore(parseInt(value, 10));
+      }
+    },
+    []
+  );
 
   const unlock = useCallback(() => {
     setIsLocked(false);
@@ -263,7 +282,7 @@ export default function Grid({
   }, []);
 
   const getSquaresOwnedByPlayer = useCallback(
-    (ownerId) => {
+    (ownerId: string) => {
       return Object.keys(grid).filter((id) => grid[id].ownerId === ownerId);
     },
     [grid]
@@ -277,14 +296,14 @@ export default function Grid({
         const homeScoreIndex = id[1];
         const awayScoreIndex = id[0];
         const scoreKey = scoreToOwnerKey(
-          homeScore[homeScoreIndex],
-          awayScore[awayScoreIndex]
+          homeScore[parseInt(homeScoreIndex, 10)],
+          awayScore[parseInt(awayScoreIndex, 10)]
         );
         map[scoreKey] = square.ownerId;
       }
 
       return map;
-    }, {});
+    }, {} as Record<string, string>);
 
     return updatedScoreToOwnerIdMap;
   }, [awayScore, grid, homeScore]);
@@ -293,7 +312,7 @@ export default function Grid({
    * @param {number} homeScore
    * @param {number} awayScore
    */
-  function scoreToOwner(homeScore, awayScore) {
+  function scoreToOwner(homeScore: number, awayScore: number) {
     return players[scoreToOwnerIdMap[scoreToOwnerKey(homeScore, awayScore)]];
   }
 
@@ -314,7 +333,7 @@ export default function Grid({
             <Player
               key={id}
               id={id}
-              isActive={!isLocked && id === activePlayerId}
+              isActive={!isLocked && parseInt(id, 10) === activePlayerId}
               name={name}
               color={color}
               ownedSquares={getSquaresOwnedByPlayer(id)}
@@ -411,7 +430,7 @@ export default function Grid({
           />
         ))}
         {fullIds.map((id) => {
-          const { color, name } = players[grid[id].ownerId] || {};
+          const { color, name } = players[grid[id].ownerId!] || {};
           const square = (
             <Square
               key={id}
@@ -422,17 +441,17 @@ export default function Grid({
               unclaim={unclaim}
               isCurrentWinner={
                 isLocked &&
-                awayScore[id[0]] ===
+                awayScore[parseInt(id[0], 10)] ===
                   `${awayActualScore}`.charAt(
                     `${awayActualScore}`.length - 1
                   ) &&
-                homeScore[id[1]] ===
+                homeScore[parseInt(id[1], 10)] ===
                   `${homeActualScore}`.charAt(`${homeActualScore}`.length - 1)
               }
             />
           );
           if (id[1] === '0') {
-            const digit = awayScore[id[0]];
+            const digit = awayScore[parseInt(id[0], 10)];
             const key = `awayDigit_${digit === '?' ? id[0] : digit}`;
             return (
               <React.Fragment key={key}>
