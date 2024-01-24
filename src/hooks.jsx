@@ -9,7 +9,7 @@ function get(endpoint) {
   return fetch(endpoint).then((response) => response.json());
 }
 
-const gameData = {
+export const INITIAL_GAME_TEMPLATE = {
   away: 0,
   home: 0,
   clock: '0:00',
@@ -17,7 +17,11 @@ const gameData = {
   eventIndex: 0,
   homeTeam: 'HOME',
   awayTeam: 'AWAY',
+  games: [],
+  gameId: undefined,
 };
+
+let gameData = { ...INITIAL_GAME_TEMPLATE };
 
 let rawData = {};
 
@@ -36,41 +40,52 @@ function getEventIndex(gameId) {
   );
 }
 
-function getScores(gameId) {
-  const eventIndex = getEventIndex(gameId);
-  if (rawData?.events && eventIndex !== -1) {
-    gameData.eventIndex = eventIndex;
+function getGameFromEvent(event) {
+  if (!event) return INITIAL_GAME_TEMPLATE;
+
+  const game = {
+    gameId: event.id,
+  };
+  const competition = event?.competitions?.[0];
+  const { competitors, status } = competition || {};
+  if (competitors) {
+    competitors.forEach((competitor) => {
+      if (competitor?.homeAway === 'home') {
+        game.home = parseInt(competitor?.score, 10);
+        game.homeTeam = competitor?.team?.abbreviation || 'HOME';
+      } else {
+        game.away = parseInt(competitor?.score, 10);
+        game.awayTeam = competitor?.team?.abbreviation || 'AWAY';
+      }
+    });
   }
 
+  if (status) {
+    game.clock = status?.displayClock;
+    game.period = status?.period;
+  }
+
+  return game;
+}
+
+function getScores(gameId) {
   return getGameData().then((payload) => {
-    const competition =
-      payload?.events &&
-      payload?.events[gameData.eventIndex] &&
-      payload?.events[gameData.eventIndex].competitions &&
-      payload?.events[gameData.eventIndex].competitions[0];
-
-    if (payload?.events[gameData.eventIndex]) {
-      gameData.gameId = payload.events[gameData.eventIndex].id;
+    const eventIndex = getEventIndex(gameId);
+    if (rawData?.events && eventIndex !== -1) {
+      gameData.eventIndex = eventIndex;
     }
 
-    const { competitors, status } = competition || {};
+    const games = payload?.events?.map(getGameFromEvent);
+    const game = games[gameData.eventIndex];
+    gameData.games = games;
+    gameData.gameId = game.gameId;
 
-    if (competitors) {
-      competitors.forEach((competitor) => {
-        if (competitor?.homeAway === 'home') {
-          gameData.home = parseInt(competitor?.score, 10);
-          gameData.homeTeam = competitor?.team?.abbreviation || 'HOME';
-        } else {
-          gameData.away = parseInt(competitor?.score, 10);
-          gameData.awayTeam = competitor?.team?.abbreviation || 'AWAY';
-        }
-      });
-    }
-
-    if (status) {
-      gameData.clock = status?.displayClock;
-      gameData.period = status?.period;
-    }
+    gameData.home = game.home;
+    gameData.homeTeam = game.homeTeam;
+    gameData.away = game.away;
+    gameData.awayTeam = game.awayTeam;
+    gameData.clock = game.clock;
+    gameData.period = game.period;
 
     return gameData;
   });
@@ -82,6 +97,7 @@ function useInterval(callback, delay) {
 
   useEffect(() => {
     savedCallback.current = callback;
+    savedCallback.current();
   }, [callback]);
 
   useEffect(() => {
@@ -101,34 +117,36 @@ export function useUpdateScores(
   shouldUpdate,
   setHomeScore,
   setAwayScore,
-  initialHomeTeam,
-  initialAwayTeam,
-  initialGameId
+  homeTeam,
+  awayTeam,
+  gameId,
+  setGameId,
+  setHomeTeam,
+  setAwayTeam
 ) {
-  const initialEventIndex = getEventIndex(initialGameId);
   const [gameState, setGameState] = useState({
     ...gameData,
-    homeTeam: initialHomeTeam || gameData.homeTeam,
-    awayTeam: initialAwayTeam || gameData.awayTeam,
-    eventIndex:
-      initialEventIndex !== -1 ? initialEventIndex : gameData.eventIndex,
+    homeTeam: homeTeam || gameData.homeTeam,
+    awayTeam: awayTeam || gameData.awayTeam,
   });
 
   const callback = useCallback(
     () =>
-      getScores(initialGameId).then((data) => {
+      getScores(gameId).then((data) => {
+        setGameId(data.gameId);
         setGameState({ ...data });
-        const { home, away } = data;
+        const { home, away, homeTeam, awayTeam } = data;
         setHomeScore(home);
         setAwayScore(away);
+        setHomeTeam(homeTeam);
+        setAwayTeam(awayTeam);
       }),
-    [setAwayScore, setHomeScore, initialGameId]
+    [gameId, setHomeScore, setAwayScore, setHomeTeam, setAwayTeam, setGameId]
   );
 
   const intervalId = useInterval(callback, shouldUpdate ? INTERVAL : null);
 
   if (!shouldUpdate) clearInterval(intervalId);
 
-  console.log(gameState);
   return gameState;
 }
