@@ -47,13 +47,14 @@ export default function EditPlayers({
           &times;
         </button>
         <form>
-          {Object.keys(players).map((id) => (
+          {Object.entries(players).map(([id, player]) => (
             <input
+              type="text"
               key={id}
               id={id}
-              value={players[id].name}
+              value={player.name ?? ''}
               className="player-input"
-              style={{ backgroundColor: players[id].color }}
+              style={{ backgroundColor: player.color }}
               onChange={setPlayer}
             />
           ))}
