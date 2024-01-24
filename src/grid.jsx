@@ -13,6 +13,7 @@ import Player from './player';
 import Score from './score';
 import Legend from './legend';
 import EditPlayers from './editPlayers';
+import EditGame from './editGame';
 import colors from './colors';
 import { LOCAL_STORAGE_KEY } from './constants';
 import './Grid.css';
@@ -130,6 +131,9 @@ export default function Grid({
   const [homeActualScore, setHomeActualScore] = useState(0);
   const [awayActualScore, setAwayActualScore] = useState(0);
   const [players, setPlayers] = useState(initialPlayers || presetPlayers);
+  const [gameId, setGameId] = useState(initialGameId);
+  const [homeTeam, setHomeTeam] = useState(initialHomeTeam || 'HOME');
+  const [awayTeam, setAwayTeam] = useState(initialAwayTeam || 'AWAY');
   const [activePlayerId, setActivePlayerId] = useState(0);
   const [isLocked, setIsLocked] = useState(!!initialPlayers);
   const [homeScore, setHomeScore] = useState(
@@ -138,20 +142,32 @@ export default function Grid({
   const [awayScore, setAwayScore] = useState(
     initialAwayScore || Array(10).fill('?')
   );
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditPlayersModalOpen, setIsEditPlayersModalOpen] = useState(false);
+  const [isEditGameModalOpen, setIsEditGameModalOpen] = useState(false);
   const [isAutoUpdating, setIsAutoUpdating] = useState(isLocked);
 
-  const { homeTeam, awayTeam, clock, period, gameId } = useUpdateScores(
+  const { clock, period, games } = useUpdateScores(
     isAutoUpdating,
     setHomeActualScore,
     setAwayActualScore,
-    initialHomeTeam,
-    initialAwayTeam,
-    initialGameId
+    homeTeam,
+    awayTeam,
+    gameId,
+    setGameId,
+    setHomeTeam,
+    setAwayTeam
   );
 
-  const editPlayers = useCallback(() => setIsModalOpen(true), [setIsModalOpen]);
-  const closeModal = useCallback(() => setIsModalOpen(false), [setIsModalOpen]);
+  const editPlayers = useCallback(() => setIsEditPlayersModalOpen(true), []);
+  const editGame = useCallback(() => setIsEditGameModalOpen(true), []);
+  const closeEditPlayersModal = useCallback(
+    () => setIsEditPlayersModalOpen(false),
+    []
+  );
+  const closeEditGameModal = useCallback(
+    () => setIsEditGameModalOpen(false),
+    []
+  );
 
   const namedPlayers = useMemo(
     () => Object.values(players).filter(({ name }) => !!name),
@@ -285,12 +301,10 @@ export default function Grid({
     dispatch({
       type: 'auto-pick',
       payload: {
-        ownerIds: Object.values(players)
-          .filter(({ name }) => !!name)
-          .map((player) => player.id),
+        ownerIds: Object.values(namedPlayers).map((player) => player.id),
       },
     });
-  }, [players]);
+  }, [namedPlayers]);
 
   return (
     <div className="container">
@@ -313,18 +327,30 @@ export default function Grid({
             Players
           </button>
           {!isLocked && (
-            <button onClick={autoPick} className="button">
-              Auto-Pick
-            </button>
+            <>
+              <button onClick={autoPick} className="button">
+                Auto-Pick
+              </button>
+              <button onClick={editGame} className="button">
+                Game
+              </button>
+            </>
           )}
           <button onClick={isLocked ? unlock : lock} className="button">
             {isLocked ? 'Unlock' : 'Lock'}
           </button>
           <EditPlayers
-            isOpen={isModalOpen}
-            onClose={closeModal}
+            isOpen={isEditPlayersModalOpen}
+            onClose={closeEditPlayersModal}
             players={players}
             setPlayers={setPlayers}
+          />
+          <EditGame
+            isOpen={isEditGameModalOpen}
+            onClose={closeEditGameModal}
+            gameId={gameId}
+            setGameId={setGameId}
+            games={games}
           />
         </div>
       </div>
@@ -337,7 +363,7 @@ export default function Grid({
             value={awayActualScore}
             name="away-actual-score"
             placeholder={awayTeam}
-            className={`score-input ${awayTeam.toLowerCase()}`}
+            className={`score-input ${awayTeam?.toLowerCase()}`}
             type="number"
             min="0"
             disabled={isAutoUpdating}
@@ -351,7 +377,7 @@ export default function Grid({
             value={homeActualScore}
             name="home-actual-score"
             placeholder={homeTeam}
-            className={`score-input ${homeTeam.toLowerCase()}`}
+            className={`score-input ${homeTeam?.toLowerCase()}`}
             type="number"
             min="0"
             disabled={isAutoUpdating}
@@ -381,7 +407,7 @@ export default function Grid({
           <Score
             key={`homeDigit_${index}`}
             digit={digit}
-            className={homeTeam.toLowerCase()}
+            className={homeTeam?.toLowerCase()}
           />
         ))}
         {fullIds.map((id) => {
@@ -410,7 +436,7 @@ export default function Grid({
             const key = `awayDigit_${digit === '?' ? id[0] : digit}`;
             return (
               <React.Fragment key={key}>
-                <Score digit={digit} className={awayTeam.toLowerCase()} />
+                <Score digit={digit} className={awayTeam?.toLowerCase()} />
                 {square}
               </React.Fragment>
             );
