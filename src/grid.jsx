@@ -6,7 +6,7 @@ import React, {
   useEffect,
 } from "react";
 import { useUpdateScores } from "./hooks";
-import { getRandomDigits } from "./utils";
+import { getRandomDigits, shuffle } from "./utils";
 import { allNextScores, scoreToOwnerKey } from "./future-utils";
 import Square from "./square";
 import Player from "./player";
@@ -71,6 +71,19 @@ const initialGrid = fullIds.reduce(
   {}
 );
 
+function randomizeGridForOwnerIds(ownerIds) {
+  return shuffle(fullIds).reduce(
+    (grid, id, index) => ({
+      ...grid,
+      [id]: {
+        id,
+        ownerId: ownerIds[index % ownerIds.length],
+      },
+    }),
+    {}
+  );
+}
+
 function gridReducer(state, { type, payload }) {
   switch (type) {
     case "claim":
@@ -93,6 +106,9 @@ function gridReducer(state, { type, payload }) {
           ownerId: undefined,
         },
       };
+    case "auto-pick":
+      const { ownerIds } = payload;
+      return randomizeGridForOwnerIds(ownerIds);
     default:
       throw new Error();
   }
@@ -265,6 +281,17 @@ export default function Grid({
     return players[scoreToOwnerIdMap[scoreToOwnerKey(homeScore, awayScore)]];
   }
 
+  const autoPick = useCallback(() => {
+    dispatch({
+      type: "auto-pick",
+      payload: {
+        ownerIds: Object.values(players)
+          .filter(({ name }) => !!name)
+          .map((player) => player.id),
+      },
+    });
+  }, [players]);
+
   return (
     <div className="container">
       <div className="control-container">
@@ -285,6 +312,11 @@ export default function Grid({
           <button onClick={editPlayers} className="button">
             Players
           </button>
+          {!isLocked && (
+            <button onClick={autoPick} className="button">
+              Auto-Pick
+            </button>
+          )}
           <button onClick={isLocked ? unlock : lock} className="button">
             {isLocked ? "Unlock" : "Lock"}
           </button>
