@@ -4,23 +4,24 @@ import React, {
   useState,
   useMemo,
   useEffect,
-} from 'react';
-import { useUpdateScores } from './hooks';
-import { getRandomDigits } from './utils';
-import Square from './square';
-import Player from './player';
-import Score from './score';
-import Legend from './legend';
-import EditPlayers from './editPlayers';
-import colors from './colors';
-import { LOCAL_STORAGE_KEY } from './constants';
-import './Grid.css';
+} from "react";
+import { useUpdateScores } from "./hooks";
+import { getRandomDigits } from "./utils";
+import { allNextScores, scoreToOwnerKey } from "./future-utils";
+import Square from "./square";
+import Player from "./player";
+import Score from "./score";
+import Legend from "./legend";
+import EditPlayers from "./editPlayers";
+import colors from "./colors";
+import { LOCAL_STORAGE_KEY } from "./constants";
+import "./Grid.css";
 
 const emptySquare = {
   ownerId: undefined,
 };
 
-const PERIOD = ['', '1st', '2nd', '3rd', '4th'];
+const PERIOD = ["", "1st", "2nd", "3rd", "4th"];
 
 function getEmptySquare(id) {
   return {
@@ -29,7 +30,7 @@ function getEmptySquare(id) {
   };
 }
 
-const names = ['ENTER', 'PLAYERS’', 'INITIALS'];
+const names = ["ENTER", "PLAYERS’", "INITIALS"];
 
 const presetPlayers = Array(100)
   .fill()
@@ -50,7 +51,7 @@ function getEmptyPlayer(id) {
   };
 }
 
-const ids = '0123456789'.split('');
+const ids = "0123456789".split("");
 const fullIds = ids.reduce(
   (grid, rowNumber) => [
     ...grid,
@@ -72,7 +73,7 @@ const initialGrid = fullIds.reduce(
 
 function gridReducer(state, { type, payload }) {
   switch (type) {
-    case 'claim':
+    case "claim":
       return {
         ...state,
         [payload.id]: {
@@ -80,7 +81,7 @@ function gridReducer(state, { type, payload }) {
           ownerId: payload.ownerId,
         },
       };
-    case 'unclaim':
+    case "unclaim":
       const currentOwnerId = state[payload.id].ownerId;
       if (currentOwnerId !== payload.ownerId) {
         return state;
@@ -116,10 +117,10 @@ export default function Grid({
   const [activePlayerId, setActivePlayerId] = useState(0);
   const [isLocked, setIsLocked] = useState(!!initialPlayers);
   const [homeScore, setHomeScore] = useState(
-    initialHomeScore || Array(10).fill('?')
+    initialHomeScore || Array(10).fill("?")
   );
   const [awayScore, setAwayScore] = useState(
-    initialAwayScore || Array(10).fill('?')
+    initialAwayScore || Array(10).fill("?")
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAutoUpdating, setIsAutoUpdating] = useState(isLocked);
@@ -145,7 +146,7 @@ export default function Grid({
     (id) => {
       if (!isLocked) {
         dispatch({
-          type: 'claim',
+          type: "claim",
           payload: {
             id,
             ownerId: activePlayerId,
@@ -160,7 +161,7 @@ export default function Grid({
     (id) => {
       if (!isLocked) {
         dispatch({
-          type: 'unclaim',
+          type: "unclaim",
           payload: {
             id,
             ownerId: activePlayerId,
@@ -211,7 +212,7 @@ export default function Grid({
   }, [isLocked]);
 
   const setActualScore = useCallback(({ target: { name, value } }) => {
-    if (name === 'away-actual-score') {
+    if (name === "away-actual-score") {
       setAwayActualScore(value);
     } else {
       setHomeActualScore(value);
@@ -221,8 +222,8 @@ export default function Grid({
   const unlock = useCallback(() => {
     setIsLocked(false);
     setIsAutoUpdating(false);
-    setHomeScore(Array(10).fill('?'));
-    setAwayScore(Array(10).fill('?'));
+    setHomeScore(Array(10).fill("?"));
+    setAwayScore(Array(10).fill("?"));
   }, []);
 
   const toggleIsAutoUpdating = useCallback(() => {
@@ -235,6 +236,34 @@ export default function Grid({
     },
     [grid]
   );
+
+  const scoreToOwnerIdMap = React.useMemo(() => {
+    const updatedScoreToOwnerIdMap = Object.keys(grid).reduce((map, id) => {
+      const square = grid[id];
+
+      if (square.ownerId !== undefined) {
+        const homeScoreIndex = id[1];
+        const awayScoreIndex = id[0];
+        const scoreKey = scoreToOwnerKey(
+          homeScore[homeScoreIndex],
+          awayScore[awayScoreIndex]
+        );
+        map[scoreKey] = square.ownerId;
+      }
+
+      return map;
+    }, {});
+
+    return updatedScoreToOwnerIdMap;
+  }, [isLocked]);
+
+  /**
+   * @param {number} homeScore
+   * @param {number} awayScore
+   */
+  function scoreToOwner(homeScore, awayScore) {
+    return players[scoreToOwnerIdMap[scoreToOwnerKey(homeScore, awayScore)]];
+  }
 
   return (
     <div className="container">
@@ -257,7 +286,7 @@ export default function Grid({
             Players
           </button>
           <button onClick={isLocked ? unlock : lock} className="button">
-            {isLocked ? 'Unlock' : 'Lock'}
+            {isLocked ? "Unlock" : "Lock"}
           </button>
           <EditPlayers
             isOpen={isModalOpen}
@@ -300,7 +329,7 @@ export default function Grid({
 
       <div className="time">
         <div className="clock">{clock}</div>
-        <div className="period">{PERIOD[period] || ''}</div>
+        <div className="period">{PERIOD[period] || ""}</div>
       </div>
 
       <div>
@@ -309,12 +338,12 @@ export default function Grid({
             type="checkbox"
             checked={isAutoUpdating}
             onChange={toggleIsAutoUpdating}
-          />{' '}
+          />{" "}
           Auto-update
         </label>
       </div>
 
-      <div className={`grid-container${isLocked ? ' locked' : ''}`}>
+      <div className={`grid-container${isLocked ? " locked" : ""}`}>
         <Legend x={homeTeam} y={awayTeam} />
         {homeScore.map((digit, index) => (
           <Score
@@ -344,9 +373,9 @@ export default function Grid({
               }
             />
           );
-          if (id[1] === '0') {
+          if (id[1] === "0") {
             const digit = awayScore[id[0]];
-            const key = `awayDigit_${digit === '?' ? id[0] : digit}`;
+            const key = `awayDigit_${digit === "?" ? id[0] : digit}`;
             return (
               <React.Fragment key={key}>
                 <Score digit={digit} className={awayTeam.toLowerCase()} />
@@ -358,6 +387,22 @@ export default function Grid({
           return square;
         })}
       </div>
+
+      <h2>In one score...</h2>
+      {allNextScores(homeActualScore, awayActualScore).map((nextScore, idx) => {
+        const ownerName = scoreToOwner(nextScore.home, nextScore.away)?.name;
+
+        if (!ownerName) {
+          return null;
+        }
+
+        return (
+          <div key={idx}>
+            If {nextScore.scorer} scores a {nextScore.type}: {ownerName} is in
+            the lead! ({nextScore.away}-{nextScore.home})
+          </div>
+        );
+      })}
     </div>
   );
 }
