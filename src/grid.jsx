@@ -4,24 +4,24 @@ import React, {
   useState,
   useMemo,
   useEffect,
-} from "react";
-import { useUpdateScores } from "./hooks";
-import { getRandomDigits, shuffle } from "./utils";
-import { allNextScores, scoreToOwnerKey } from "./future-utils";
-import Square from "./square";
-import Player from "./player";
-import Score from "./score";
-import Legend from "./legend";
-import EditPlayers from "./editPlayers";
-import colors from "./colors";
-import { LOCAL_STORAGE_KEY } from "./constants";
-import "./Grid.css";
+} from 'react';
+import { useUpdateScores } from './hooks';
+import { getRandomDigits, shuffle } from './utils';
+import { /* allNextScores, */ scoreToOwnerKey } from './future-utils';
+import Square from './square';
+import Player from './player';
+import Score from './score';
+import Legend from './legend';
+import EditPlayers from './editPlayers';
+import colors from './colors';
+import { LOCAL_STORAGE_KEY } from './constants';
+import './Grid.css';
 
 const emptySquare = {
   ownerId: undefined,
 };
 
-const PERIOD = ["", "1st", "2nd", "3rd", "4th"];
+const PERIOD = ['', '1st', '2nd', '3rd', '4th'];
 
 function getEmptySquare(id) {
   return {
@@ -30,7 +30,7 @@ function getEmptySquare(id) {
   };
 }
 
-const names = ["ENTER", "PLAYERS’", "INITIALS"];
+const names = ['ENTER', 'PLAYERS’', 'INITIALS'];
 
 const presetPlayers = Array(100)
   .fill()
@@ -51,7 +51,7 @@ function getEmptyPlayer(id) {
   };
 }
 
-const ids = "0123456789".split("");
+const ids = '0123456789'.split('');
 const fullIds = ids.reduce(
   (grid, rowNumber) => [
     ...grid,
@@ -86,7 +86,7 @@ function randomizeGridForOwnerIds(ownerIds) {
 
 function gridReducer(state, { type, payload }) {
   switch (type) {
-    case "claim":
+    case 'claim':
       return {
         ...state,
         [payload.id]: {
@@ -94,7 +94,7 @@ function gridReducer(state, { type, payload }) {
           ownerId: payload.ownerId,
         },
       };
-    case "unclaim":
+    case 'unclaim':
       const currentOwnerId = state[payload.id].ownerId;
       if (currentOwnerId !== payload.ownerId) {
         return state;
@@ -106,7 +106,7 @@ function gridReducer(state, { type, payload }) {
           ownerId: undefined,
         },
       };
-    case "auto-pick":
+    case 'auto-pick':
       const { ownerIds } = payload;
       return randomizeGridForOwnerIds(ownerIds);
     default:
@@ -133,10 +133,10 @@ export default function Grid({
   const [activePlayerId, setActivePlayerId] = useState(0);
   const [isLocked, setIsLocked] = useState(!!initialPlayers);
   const [homeScore, setHomeScore] = useState(
-    initialHomeScore || Array(10).fill("?")
+    initialHomeScore || Array(10).fill('?')
   );
   const [awayScore, setAwayScore] = useState(
-    initialAwayScore || Array(10).fill("?")
+    initialAwayScore || Array(10).fill('?')
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAutoUpdating, setIsAutoUpdating] = useState(isLocked);
@@ -162,7 +162,7 @@ export default function Grid({
     (id) => {
       if (!isLocked) {
         dispatch({
-          type: "claim",
+          type: 'claim',
           payload: {
             id,
             ownerId: activePlayerId,
@@ -177,7 +177,7 @@ export default function Grid({
     (id) => {
       if (!isLocked) {
         dispatch({
-          type: "unclaim",
+          type: 'unclaim',
           payload: {
             id,
             ownerId: activePlayerId,
@@ -228,7 +228,7 @@ export default function Grid({
   }, [isLocked]);
 
   const setActualScore = useCallback(({ target: { name, value } }) => {
-    if (name === "away-actual-score") {
+    if (name === 'away-actual-score') {
       setAwayActualScore(value);
     } else {
       setHomeActualScore(value);
@@ -238,8 +238,8 @@ export default function Grid({
   const unlock = useCallback(() => {
     setIsLocked(false);
     setIsAutoUpdating(false);
-    setHomeScore(Array(10).fill("?"));
-    setAwayScore(Array(10).fill("?"));
+    setHomeScore(Array(10).fill('?'));
+    setAwayScore(Array(10).fill('?'));
   }, []);
 
   const toggleIsAutoUpdating = useCallback(() => {
@@ -271,7 +271,7 @@ export default function Grid({
     }, {});
 
     return updatedScoreToOwnerIdMap;
-  }, [isLocked]);
+  }, [awayScore, grid, homeScore]);
 
   /**
    * @param {number} homeScore
@@ -283,7 +283,7 @@ export default function Grid({
 
   const autoPick = useCallback(() => {
     dispatch({
-      type: "auto-pick",
+      type: 'auto-pick',
       payload: {
         ownerIds: Object.values(players)
           .filter(({ name }) => !!name)
@@ -318,7 +318,7 @@ export default function Grid({
             </button>
           )}
           <button onClick={isLocked ? unlock : lock} className="button">
-            {isLocked ? "Unlock" : "Lock"}
+            {isLocked ? 'Unlock' : 'Lock'}
           </button>
           <EditPlayers
             isOpen={isModalOpen}
@@ -361,7 +361,7 @@ export default function Grid({
 
       <div className="time">
         <div className="clock">{clock}</div>
-        <div className="period">{PERIOD[period] || ""}</div>
+        <div className="period">{PERIOD[period] || ''}</div>
       </div>
 
       <div>
@@ -370,12 +370,12 @@ export default function Grid({
             type="checkbox"
             checked={isAutoUpdating}
             onChange={toggleIsAutoUpdating}
-          />{" "}
+          />{' '}
           Auto-update
         </label>
       </div>
 
-      <div className={`grid-container${isLocked ? " locked" : ""}`}>
+      <div className={`grid-container${isLocked ? ' locked' : ''}`}>
         <Legend x={homeTeam} y={awayTeam} />
         {homeScore.map((digit, index) => (
           <Score
@@ -405,9 +405,9 @@ export default function Grid({
               }
             />
           );
-          if (id[1] === "0") {
+          if (id[1] === '0') {
             const digit = awayScore[id[0]];
-            const key = `awayDigit_${digit === "?" ? id[0] : digit}`;
+            const key = `awayDigit_${digit === '?' ? id[0] : digit}`;
             return (
               <React.Fragment key={key}>
                 <Score digit={digit} className={awayTeam.toLowerCase()} />
