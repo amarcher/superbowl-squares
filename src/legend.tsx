@@ -1,8 +1,13 @@
-import React from "react";
+import React from 'react';
 
-import "./Legend.css";
+import './Legend.css';
 
-export default function Legend({ x, y }) {
+interface Props {
+  x?: string;
+  y?: string;
+}
+
+export default function Legend({ x, y }: Props) {
   return (
     <div className="container">
       <div className="x">

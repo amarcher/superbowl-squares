@@ -2,6 +2,15 @@ import React, { useCallback, useMemo } from 'react';
 
 import './Square.css';
 
+interface Props {
+  id: string;
+  isCurrentWinner?: boolean;
+  ownerColor?: string;
+  ownerName?: string;
+  claim: (id: string) => void;
+  unclaim: (id: string) => void;
+}
+
 export default function Square({
   id,
   isCurrentWinner,
@@ -9,7 +18,7 @@ export default function Square({
   ownerName,
   claim,
   unclaim,
-}) {
+}: Props) {
   const onClick = useCallback(() => {
     if (ownerColor) {
       unclaim(id);

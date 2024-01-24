@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type Event from './types/event';
+import type Game from './types/game';
 import 'whatwg-fetch';
 
 const ESPN_ENDPOINT =
   'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 const INTERVAL = 30 * 1000;
 
-function get(endpoint) {
+function get(endpoint: string) {
   return fetch(endpoint).then((response) => response.json());
 }
 
@@ -27,10 +29,11 @@ function getGameData() {
   return get(ESPN_ENDPOINT);
 }
 
-function getGameFromEvent(event) {
+function getGameFromEvent(event: Event) {
   if (!event) return INITIAL_GAME_TEMPLATE;
 
   const game = {
+    ...INITIAL_GAME_TEMPLATE,
     gameId: event.id,
   };
   const competition = event?.competitions?.[0];
@@ -55,10 +58,10 @@ function getGameFromEvent(event) {
   return game;
 }
 
-function getScores(gameId) {
+function getScores(gameId?: string) {
   return getGameData().then((payload) => {
     const games = payload?.events?.map(getGameFromEvent);
-    const eventIndex = games.findIndex((game) => game.gameId === gameId);
+    const eventIndex = games.findIndex((game: Game) => game.gameId === gameId);
     gameData.eventIndex = eventIndex !== -1 ? eventIndex : 0;
 
     const game = games[gameData.eventIndex];
@@ -76,8 +79,8 @@ function getScores(gameId) {
   });
 }
 
-function useInterval(callback, delay) {
-  const intervalId = useRef(null);
+function useInterval(callback: () => void, delay?: number | null) {
+  const intervalId = useRef<number | null>(null);
   const savedCallback = useRef(callback);
 
   useEffect(() => {
@@ -90,8 +93,10 @@ function useInterval(callback, delay) {
 
     if (typeof delay === 'number') {
       tick();
-      intervalId.current = window.setInterval(tick, delay);
-      return () => window.clearInterval(intervalId.current);
+      intervalId.current = window.setInterval(tick, delay) as number;
+      return () => {
+        if (intervalId.current) window.clearInterval(intervalId.current);
+      };
     }
   }, [delay]);
 
@@ -99,15 +104,15 @@ function useInterval(callback, delay) {
 }
 
 export function useUpdateScores(
-  shouldUpdate,
-  setHomeScore,
-  setAwayScore,
-  homeTeam,
-  awayTeam,
-  gameId,
-  setGameId,
-  setHomeTeam,
-  setAwayTeam
+  shouldUpdate: boolean,
+  setHomeScore: (homeScore: number) => void,
+  setAwayScore: (awayScore: number) => void,
+  homeTeam?: string,
+  awayTeam?: string,
+  gameId?: string,
+  setGameId?: (gameId?: string) => void,
+  setHomeTeam?: (homeTeam: string) => void,
+  setAwayTeam?: (awayTeam: string) => void
 ) {
   const [gameState, setGameState] = useState({
     ...gameData,
@@ -118,20 +123,20 @@ export function useUpdateScores(
   const callback = useCallback(
     () =>
       getScores(gameId).then((data) => {
-        setGameId(data.gameId);
+        setGameId?.(data.gameId);
         setGameState({ ...data });
         const { home, away, homeTeam, awayTeam } = data;
         setHomeScore(home);
         setAwayScore(away);
-        setHomeTeam(homeTeam);
-        setAwayTeam(awayTeam);
+        setHomeTeam?.(homeTeam);
+        setAwayTeam?.(awayTeam);
       }),
     [gameId, setHomeScore, setAwayScore, setHomeTeam, setAwayTeam, setGameId]
   );
 
   const intervalId = useInterval(callback, shouldUpdate ? INTERVAL : null);
 
-  if (!shouldUpdate) clearInterval(intervalId);
+  if (!shouldUpdate && intervalId) clearInterval(intervalId);
 
   return gameState;
 }
