@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import type Event from './types/event';
 import type Game from './types/game';
 import 'whatwg-fetch';
@@ -16,18 +16,11 @@ export const INITIAL_GAME_TEMPLATE = {
   home: 0,
   clock: '0:00',
   period: 0,
-  eventIndex: 0,
   homeTeam: 'HOME',
   awayTeam: 'AWAY',
   games: [],
   gameId: undefined,
 };
-
-let gameData = { ...INITIAL_GAME_TEMPLATE };
-
-function getGameData() {
-  return get(ESPN_ENDPOINT);
-}
 
 function getGameFromEvent(event: Event) {
   if (!event) return INITIAL_GAME_TEMPLATE;
@@ -59,23 +52,9 @@ function getGameFromEvent(event: Event) {
 }
 
 function getScores(gameId?: string) {
-  return getGameData().then((payload) => {
-    const games = payload?.events?.map(getGameFromEvent);
-    const eventIndex = games.findIndex((game: Game) => game.gameId === gameId);
-    gameData.eventIndex = eventIndex !== -1 ? eventIndex : 0;
-
-    const game = games[gameData.eventIndex];
-    gameData.games = games;
-    gameData.gameId = game.gameId;
-
-    gameData.home = game.home;
-    gameData.homeTeam = game.homeTeam;
-    gameData.away = game.away;
-    gameData.awayTeam = game.awayTeam;
-    gameData.clock = game.clock;
-    gameData.period = game.period;
-
-    return gameData;
+  return get(ESPN_ENDPOINT).catch((error) => {
+    console.log(error);
+    // TODO (handle errors)
   });
 }
 
@@ -103,40 +82,49 @@ function useInterval(callback: () => void, delay?: number | null) {
   return intervalId.current;
 }
 
-export function useUpdateScores(
-  shouldUpdate: boolean,
-  setHomeScore: (homeScore: number) => void,
-  setAwayScore: (awayScore: number) => void,
-  homeTeam?: string,
-  awayTeam?: string,
-  gameId?: string,
-  setGameId?: (gameId?: string) => void,
-  setHomeTeam?: (homeTeam: string) => void,
-  setAwayTeam?: (awayTeam: string) => void
-) {
+export function useUpdateScores({
+  shouldUpdate,
+  initialHomeTeam = INITIAL_GAME_TEMPLATE.homeTeam,
+  initialAwayTeam = INITIAL_GAME_TEMPLATE.awayTeam,
+  initialGameId,
+}: {
+  shouldUpdate: boolean;
+  initialHomeTeam?: string;
+  initialAwayTeam?: string;
+  initialGameId?: string;
+}) {
   const [gameState, setGameState] = useState({
-    ...gameData,
-    homeTeam: homeTeam || gameData.homeTeam,
-    awayTeam: awayTeam || gameData.awayTeam,
+    ...INITIAL_GAME_TEMPLATE,
+    homeTeam: initialHomeTeam,
+    awayTeam: initialAwayTeam,
+    gameId: initialGameId,
   });
 
   const callback = useCallback(
     () =>
-      getScores(gameId).then((data) => {
-        setGameId?.(data.gameId);
-        setGameState({ ...data });
-        const { home, away, homeTeam, awayTeam } = data;
-        setHomeScore(home);
-        setAwayScore(away);
-        setHomeTeam?.(homeTeam);
-        setAwayTeam?.(awayTeam);
+      getScores(gameState.gameId).then((payload) => {
+        const games = payload?.events?.map(getGameFromEvent);
+        const game = games.find(
+          (game: Game) => game.gameId === gameState.gameId
+        );
+
+        setGameState((prevGameState) => ({
+          ...prevGameState,
+          ...game,
+          games,
+        }));
+
+        return {
+          ...game,
+          games,
+        };
       }),
-    [gameId, setHomeScore, setAwayScore, setHomeTeam, setAwayTeam, setGameId]
+    [gameState.gameId]
   );
 
   const intervalId = useInterval(callback, shouldUpdate ? INTERVAL : null);
 
   if (!shouldUpdate && intervalId) clearInterval(intervalId);
 
-  return gameState;
+  return useMemo(() => ({ gameState, setGameState }), [gameState]);
 }
