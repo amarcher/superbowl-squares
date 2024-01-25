@@ -6,7 +6,7 @@ import React, {
   useEffect,
 } from 'react';
 import { useUpdateScores } from './hooks';
-import { getRandomDigits, shuffle } from './utils';
+import { getRandomDigits, shuffle, writeStateToQueryParms } from './utils';
 import { /* allNextScores, */ scoreToOwnerKey } from './future-utils';
 import Square from './square';
 import Player from './player';
@@ -259,31 +259,32 @@ export default function Grid({
     setIsAutoUpdating(true);
   }, []);
 
+  const serializableGameState = useMemo(
+    () => ({
+      homeScore,
+      awayScore,
+      grid,
+      players,
+      homeTeam,
+      awayTeam,
+      gameId,
+    }),
+    [homeScore, awayScore, grid, players, homeTeam, awayTeam, gameId],
+  );
+
   useEffect(() => {
-    if (isLocked && window.localStorage) {
-      localStorage.setItem(
-        LOCAL_STORAGE_KEY,
-        JSON.stringify({
-          homeScore,
-          awayScore,
-          grid,
-          players,
-          homeTeam,
-          awayTeam,
-          gameId,
-        }),
-      );
+    if (isLocked) {
+      // writeStateToQueryParms(serializableGameState);
+      console.log(serializableGameState);
+
+      if (window.localStorage) {
+        localStorage.setItem(
+          LOCAL_STORAGE_KEY,
+          JSON.stringify(serializableGameState),
+        );
+      }
     }
-  }, [
-    grid,
-    isLocked,
-    awayScore,
-    players,
-    homeScore,
-    homeTeam,
-    awayTeam,
-    gameId,
-  ]);
+  }, [serializableGameState, isLocked]);
 
   useEffect(() => {
     if (!isLocked && window.localStorage) {
