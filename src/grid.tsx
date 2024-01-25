@@ -371,6 +371,40 @@ export default function Grid({
     [setIsSummaryOpen],
   );
 
+  function scores() {
+    return (
+      <div className="score-container">
+        <label className="score-label">
+          {awayTeam}
+          <input
+            onChange={setActualScore}
+            value={awayActualScore}
+            name="away-actual-score"
+            placeholder={awayTeam}
+            className={`score-input ${awayTeam?.toLowerCase()}`}
+            type="number"
+            min="0"
+            disabled={isAutoUpdating}
+          />
+        </label>
+        <div className="score-divider">-</div>
+        <label className="score-label">
+          {homeTeam}
+          <input
+            onChange={setActualScore}
+            value={homeActualScore}
+            name="home-actual-score"
+            placeholder={homeTeam}
+            className={`score-input ${homeTeam?.toLowerCase()}`}
+            type="number"
+            min="0"
+            disabled={isAutoUpdating}
+          />
+        </label>
+      </div>
+    );
+  }
+
   return (
     <div className="container">
       <div className="control-container">
@@ -423,7 +457,22 @@ export default function Grid({
             games={games}
           />
           <Modal isOpen={isSummaryOpen} onClose={hideSummary}>
-            <h2>In one score...</h2>
+            {scores()}
+
+            <h2>
+              <span
+                className="emphasize-name"
+                style={{
+                  backgroundColor: scoreToOwner(
+                    homeActualScore,
+                    awayActualScore
+                  ).color,
+                }}
+              >
+                {scoreToOwner(homeActualScore, awayActualScore).name}
+              </span>{" "}
+              is leading, but...
+            </h2>
             {allNextScores(homeActualScore, awayActualScore, scoreToOwner).map(
               (nextScore, idx) => {
                 if (!nextScore.owner?.name) {
@@ -462,35 +511,7 @@ export default function Grid({
         </div>
       </div>
 
-      <div className="score-container">
-        <label className="score-label">
-          {awayTeam}
-          <input
-            onChange={setActualScore}
-            value={awayActualScore}
-            name="away-actual-score"
-            placeholder={awayTeam}
-            className={`score-input ${awayTeam?.toLowerCase()}`}
-            type="number"
-            min="0"
-            disabled={isAutoUpdating}
-          />
-        </label>
-        <div className="score-divider">-</div>
-        <label className="score-label">
-          {homeTeam}
-          <input
-            onChange={setActualScore}
-            value={homeActualScore}
-            name="home-actual-score"
-            placeholder={homeTeam}
-            className={`score-input ${homeTeam?.toLowerCase()}`}
-            type="number"
-            min="0"
-            disabled={isAutoUpdating}
-          />
-        </label>
-      </div>
+      {scores()}
 
       <div className="time">
         <div className="clock">{clock}</div>
