@@ -104,9 +104,9 @@ export function useUpdateScores({
     () =>
       getScores(gameState.gameId).then((payload) => {
         const games = payload?.events?.map(getGameFromEvent);
-        const game = games.find(
-          (game: Game) => game.gameId === gameState.gameId
-        );
+        const game =
+          games.find((game: Game) => game.gameId === gameState.gameId) ||
+          games[0];
 
         setGameState((prevGameState) => ({
           ...prevGameState,
