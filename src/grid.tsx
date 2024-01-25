@@ -144,12 +144,7 @@ export default function Grid({
     gridReducer,
     initialGridState || initialGrid
   );
-  const [homeActualScore, setHomeActualScore] = useState(0);
-  const [awayActualScore, setAwayActualScore] = useState(0);
   const [players, setPlayers] = useState(initialPlayers || presetPlayers);
-  const [gameId, setGameId] = useState(initialGameId);
-  const [homeTeam, setHomeTeam] = useState(initialHomeTeam || 'HOME');
-  const [awayTeam, setAwayTeam] = useState(initialAwayTeam || 'AWAY');
   const [activePlayerId, setActivePlayerId] = useState(0);
   const [isLocked, setIsLocked] = useState(!!initialPlayers);
   const [homeScore, setHomeScore] = useState(
@@ -162,16 +157,53 @@ export default function Grid({
   const [isEditGameModalOpen, setIsEditGameModalOpen] = useState(false);
   const [isAutoUpdating, setIsAutoUpdating] = useState(isLocked);
 
-  const { clock, period, games } = useUpdateScores(
-    isAutoUpdating,
-    setHomeActualScore,
-    setAwayActualScore,
-    homeTeam,
-    awayTeam,
-    gameId,
-    setGameId,
-    setHomeTeam,
-    setAwayTeam
+  const {
+    gameState: {
+      clock,
+      period,
+      games,
+      gameId,
+      homeTeam,
+      awayTeam,
+      home: homeActualScore,
+      away: awayActualScore,
+    },
+    setGameState,
+  } = useUpdateScores({
+    shouldUpdate: isAutoUpdating,
+    initialHomeTeam,
+    initialAwayTeam,
+    initialGameId,
+  });
+
+  const setGameId = useCallback(
+    (gameId?: string) => {
+      setGameState((prevState) => ({
+        ...prevState,
+        gameId,
+      }));
+    },
+    [setGameState]
+  );
+
+  const setAwayActualScore = useCallback(
+    (away: number) => {
+      setGameState((prevState) => ({
+        ...prevState,
+        away,
+      }));
+    },
+    [setGameState]
+  );
+
+  const setHomeActualScore = useCallback(
+    (home: number) => {
+      setGameState((prevState) => ({
+        ...prevState,
+        home,
+      }));
+    },
+    [setGameState]
   );
 
   const editPlayers = useCallback(() => setIsEditPlayersModalOpen(true), []);
@@ -267,7 +299,7 @@ export default function Grid({
         setHomeActualScore(parseInt(value, 10));
       }
     },
-    []
+    [setAwayActualScore, setHomeActualScore]
   );
 
   const unlock = useCallback(() => {
