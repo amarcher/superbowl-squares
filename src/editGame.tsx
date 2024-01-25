@@ -28,7 +28,7 @@ export default function EditGame({
 
       setGameId(value);
     },
-    [setGameId]
+    [setGameId],
   );
 
   if (!isOpen) {
@@ -54,6 +54,6 @@ export default function EditGame({
         </form>
       </div>
     </>,
-    document.body
+    document.body,
   );
 }

@@ -29,7 +29,7 @@ export default function Player({
       backgroundColor: color,
       boxShadow: isActive ? 'black 0px 0px 5pt 1pt' : 'none',
     }),
-    [color, isActive]
+    [color, isActive],
   );
 
   return (

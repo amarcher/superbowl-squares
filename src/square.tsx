@@ -33,7 +33,7 @@ export default function Square({
       boxShadow: isCurrentWinner ? 'rgb(82 212 0) 0px 0px 5px 5px' : undefined,
       zIndex: isCurrentWinner ? 0 : undefined,
     }),
-    [ownerColor, isCurrentWinner]
+    [ownerColor, isCurrentWinner],
   );
 
   return (

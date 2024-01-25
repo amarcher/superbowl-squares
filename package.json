@@ -13,7 +13,6 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-scripts": "^5.0.1",
-    "typescript": "^5.3.3",
     "whatwg-fetch": "^3.5.0"
   },
   "engines": {
@@ -26,7 +25,11 @@
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": [
+      "react-app",
+      "react-app/jest",
+      "prettier"
+    ]
   },
   "browserslist": {
     "production": [
@@ -41,6 +44,9 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.2.4",
+    "typescript": "^4.9.5"
   }
 }
