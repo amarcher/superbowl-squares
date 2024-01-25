@@ -44,7 +44,7 @@ const presetPlayers: Record<string, PlayerType> = Array(100)
       ...players,
       [playerId]: getEmptyPlayer(playerId),
     }),
-    {} as Record<string, PlayerType>
+    {} as Record<string, PlayerType>,
   );
 
 function getEmptyPlayer(id: number | string): PlayerType {
@@ -64,10 +64,10 @@ const fullIds = ids.reduce(
         ...row,
         `${rowNumber}${columnNumber}`,
       ],
-      []
+      [],
     ),
   ],
-  [] as string[]
+  [] as string[],
 );
 
 const initialGrid: GridType = fullIds.reduce(
@@ -75,7 +75,7 @@ const initialGrid: GridType = fullIds.reduce(
     ...grid,
     [id]: getEmptySquare(id),
   }),
-  {} as GridType
+  {} as GridType,
 );
 
 function randomizeGridForOwnerIds(ownerIds: string[]) {
@@ -87,7 +87,7 @@ function randomizeGridForOwnerIds(ownerIds: string[]) {
         ownerId: ownerIds[index % ownerIds.length],
       },
     }),
-    {} as GridType
+    {} as GridType,
   );
 }
 
@@ -142,16 +142,16 @@ export default function Grid({
 }: Props) {
   const [grid, dispatch] = useReducer(
     gridReducer,
-    initialGridState || initialGrid
+    initialGridState || initialGrid,
   );
   const [players, setPlayers] = useState(initialPlayers || presetPlayers);
   const [activePlayerId, setActivePlayerId] = useState(0);
   const [isLocked, setIsLocked] = useState(!!initialPlayers);
   const [homeScore, setHomeScore] = useState(
-    initialHomeScore || Array(10).fill('?')
+    initialHomeScore || Array(10).fill('?'),
   );
   const [awayScore, setAwayScore] = useState(
-    initialAwayScore || Array(10).fill('?')
+    initialAwayScore || Array(10).fill('?'),
   );
   const [isEditPlayersModalOpen, setIsEditPlayersModalOpen] = useState(false);
   const [isEditGameModalOpen, setIsEditGameModalOpen] = useState(false);
@@ -183,7 +183,7 @@ export default function Grid({
         gameId,
       }));
     },
-    [setGameState]
+    [setGameState],
   );
 
   const setAwayActualScore = useCallback(
@@ -193,7 +193,7 @@ export default function Grid({
         away,
       }));
     },
-    [setGameState]
+    [setGameState],
   );
 
   const setHomeActualScore = useCallback(
@@ -203,23 +203,23 @@ export default function Grid({
         home,
       }));
     },
-    [setGameState]
+    [setGameState],
   );
 
   const editPlayers = useCallback(() => setIsEditPlayersModalOpen(true), []);
   const editGame = useCallback(() => setIsEditGameModalOpen(true), []);
   const closeEditPlayersModal = useCallback(
     () => setIsEditPlayersModalOpen(false),
-    []
+    [],
   );
   const closeEditGameModal = useCallback(
     () => setIsEditGameModalOpen(false),
-    []
+    [],
   );
 
   const namedPlayers = useMemo(
     () => Object.values(players).filter(({ name }) => !!name),
-    [players]
+    [players],
   );
 
   const claim = useCallback(
@@ -234,7 +234,7 @@ export default function Grid({
         });
       }
     },
-    [dispatch, isLocked, activePlayerId]
+    [dispatch, isLocked, activePlayerId],
   );
 
   const unclaim = useCallback(
@@ -249,7 +249,7 @@ export default function Grid({
         });
       }
     },
-    [dispatch, isLocked, activePlayerId]
+    [dispatch, isLocked, activePlayerId],
   );
 
   const lock = useCallback(() => {
@@ -271,7 +271,7 @@ export default function Grid({
           homeTeam,
           awayTeam,
           gameId,
-        })
+        }),
       );
     }
   }, [
@@ -299,7 +299,7 @@ export default function Grid({
         setHomeActualScore(parseInt(value, 10));
       }
     },
-    [setAwayActualScore, setHomeActualScore]
+    [setAwayActualScore, setHomeActualScore],
   );
 
   const unlock = useCallback(() => {
@@ -317,25 +317,28 @@ export default function Grid({
     (ownerId: string) => {
       return Object.keys(grid).filter((id) => grid[id].ownerId === ownerId);
     },
-    [grid]
+    [grid],
   );
 
   const scoreToOwnerIdMap = React.useMemo(() => {
-    const updatedScoreToOwnerIdMap = Object.keys(grid).reduce((map, id) => {
-      const square = grid[id];
+    const updatedScoreToOwnerIdMap = Object.keys(grid).reduce(
+      (map, id) => {
+        const square = grid[id];
 
-      if (square.ownerId !== undefined) {
-        const homeScoreIndex = id[1];
-        const awayScoreIndex = id[0];
-        const scoreKey = scoreToOwnerKey(
-          homeScore[parseInt(homeScoreIndex, 10)],
-          awayScore[parseInt(awayScoreIndex, 10)]
-        );
-        map[scoreKey] = square.ownerId;
-      }
+        if (square.ownerId !== undefined) {
+          const homeScoreIndex = id[1];
+          const awayScoreIndex = id[0];
+          const scoreKey = scoreToOwnerKey(
+            homeScore[parseInt(homeScoreIndex, 10)],
+            awayScore[parseInt(awayScoreIndex, 10)],
+          );
+          map[scoreKey] = square.ownerId;
+        }
 
-      return map;
-    }, {} as Record<string, string>);
+        return map;
+      },
+      {} as Record<string, string>,
+    );
 
     return updatedScoreToOwnerIdMap;
   }, [awayScore, grid, homeScore]);
@@ -475,7 +478,7 @@ export default function Grid({
                 isLocked &&
                 awayScore[parseInt(id[0], 10)] ===
                   `${awayActualScore}`.charAt(
-                    `${awayActualScore}`.length - 1
+                    `${awayActualScore}`.length - 1,
                   ) &&
                 homeScore[parseInt(id[1], 10)] ===
                   `${homeActualScore}`.charAt(`${homeActualScore}`.length - 1)

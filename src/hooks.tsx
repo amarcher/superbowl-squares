@@ -119,7 +119,7 @@ export function useUpdateScores({
           games,
         };
       }),
-    [gameState.gameId]
+    [gameState.gameId],
   );
 
   const intervalId = useInterval(callback, shouldUpdate ? INTERVAL : null);

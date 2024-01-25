@@ -32,7 +32,7 @@ export default function EditPlayers({
         },
       });
     },
-    [players, setPlayers]
+    [players, setPlayers],
   );
 
   if (!isOpen) {
@@ -61,6 +61,6 @@ export default function EditPlayers({
         </form>
       </div>
     </>,
-    document.body
+    document.body,
   );
 }

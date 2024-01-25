@@ -60,7 +60,7 @@
   margin: 0;
 }
 
-.score-input[type="number"] {
+.score-input[type='number'] {
   -moz-appearance: textfield;
 }
 
