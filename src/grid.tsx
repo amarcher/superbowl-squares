@@ -424,11 +424,9 @@ export default function Grid({
           />
           <Modal isOpen={isSummaryOpen} onClose={hideSummary}>
             <h2>In one score...</h2>
-            {allNextScores(homeActualScore, awayActualScore).map(
+            {allNextScores(homeActualScore, awayActualScore, scoreToOwner).map(
               (nextScore, idx) => {
-                const owner = scoreToOwner(nextScore.home, nextScore.away);
-
-                if (!owner?.name) {
+                if (!nextScore.owner?.name) {
                   return null;
                 }
 
@@ -438,8 +436,8 @@ export default function Grid({
                   <div key={idx} className="win-conditional">
                     <div
                       className="emphasize-name"
-                      style={{ backgroundColor: owner.color }}>
-                      {owner.name}
+                      style={{ backgroundColor: nextScore.owner.color }}>
+                      {nextScore.owner.name}
                     </div>
                     wins if
                     <div className={`emphasize-name ${team.toLowerCase()}`}>

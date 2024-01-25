@@ -1,3 +1,5 @@
+import type PlayerType from "./types/player";
+
 const SCORES = {
   touchdown: 7,
   "field goal": 3,
@@ -12,7 +14,11 @@ const SCORES = {
   // forceTurnoverScore: 2
 };
 
-export function allNextScores(homeScore: number, awayScore: number) {
+export function allNextScores(
+  homeScore: number,
+  awayScore: number,
+  scoreToOwner: (homeScore: number, awayScore: number) => PlayerType
+) {
   const scoreOptions = Object.entries(SCORES);
   const combinations = [];
 
@@ -26,16 +32,20 @@ export function allNextScores(homeScore: number, awayScore: number) {
       away: awayScore,
       type: scoreType,
       scorer: "home",
+      owner: scoreToOwner(homeScoreOption, awayScore),
     });
     combinations.push({
       home: homeScore,
       away: awayScoreOption,
       type: scoreType,
       scorer: "away",
+      owner: scoreToOwner(homeScore, awayScoreOption),
     });
   }
 
-  return combinations;
+  return combinations.sort((a, b) => {
+    return (a.owner?.name ?? 0) > (b.owner?.name ?? 0) ? 1 : -1;
+  });
 }
 
 export function scoreToOwnerKey(homeScore: number, awayScore: number): string {
