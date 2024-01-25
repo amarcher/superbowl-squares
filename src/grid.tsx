@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { useUpdateScores } from './hooks';
 import { getRandomDigits, shuffle } from './utils';
-import { /* allNextScores, */ scoreToOwnerKey } from './future-utils';
+import { allNextScores, scoreToOwnerKey } from './future-utils';
 import Square from './square';
 import Player from './player';
 import Score from './score';
@@ -20,6 +20,7 @@ import { LOCAL_STORAGE_KEY } from './constants';
 import './Grid.css';
 import type SquareType from './types/square';
 import type PlayerType from './types/player';
+import Modal from './modal';
 
 const emptySquare = {
   ownerId: undefined,
@@ -360,6 +361,16 @@ export default function Grid({
     });
   }, [namedPlayers]);
 
+  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
+  const showSummary = useCallback(
+    () => setIsSummaryOpen(true),
+    [setIsSummaryOpen],
+  );
+  const hideSummary = useCallback(
+    () => setIsSummaryOpen(false),
+    [setIsSummaryOpen],
+  );
+
   return (
     <div className="container">
       <div className="control-container">
@@ -393,6 +404,11 @@ export default function Grid({
           <button onClick={isLocked ? unlock : lock} className="button">
             {isLocked ? 'Unlock' : 'Lock'}
           </button>
+          {isLocked && (
+            <button onClick={showSummary} className="button">
+              Summary
+            </button>
+          )}
           <EditPlayers
             isOpen={isEditPlayersModalOpen}
             onClose={closeEditPlayersModal}
@@ -406,6 +422,45 @@ export default function Grid({
             setGameId={setGameId}
             games={games}
           />
+          <Modal isOpen={isSummaryOpen} onClose={hideSummary}>
+            <h2>In one score...</h2>
+            {allNextScores(homeActualScore, awayActualScore).map(
+              (nextScore, idx) => {
+                const owner = scoreToOwner(nextScore.home, nextScore.away);
+
+                if (!owner?.name) {
+                  return null;
+                }
+
+                const team = nextScore.scorer === 'home' ? homeTeam : awayTeam;
+
+                return (
+                  <div key={idx} className="win-conditional">
+                    <div
+                      className="emphasize-name"
+                      style={{ backgroundColor: owner.color }}>
+                      {owner.name}
+                    </div>
+                    wins if
+                    <div className={`emphasize-name ${team.toLowerCase()}`}>
+                      {team}
+                    </div>
+                    scores a{' '}
+                    <span className="action-type">{nextScore.type}</span>
+                    <span
+                      className={`win-cond-score ${awayTeam.toLowerCase()}`}>
+                      {nextScore.away}
+                    </span>{' '}
+                    -{' '}
+                    <span
+                      className={`win-cond-score ${homeTeam.toLowerCase()}`}>
+                      {nextScore.home}
+                    </span>
+                  </div>
+                );
+              },
+            )}
+          </Modal>
         </div>
       </div>
 
@@ -499,22 +554,6 @@ export default function Grid({
           return square;
         })}
       </div>
-      {/* Put below in a modal! */}
-      {/* <h2>In one score...</h2>
-      {allNextScores(homeActualScore, awayActualScore).map((nextScore, idx) => {
-        const ownerName = scoreToOwner(nextScore.home, nextScore.away)?.name;
-
-        if (!ownerName) {
-          return null;
-        }
-
-        return (
-          <div key={idx}>
-            If {nextScore.scorer} scores a {nextScore.type}: {ownerName} is in
-            the lead! ({nextScore.away}-{nextScore.home})
-          </div>
-        );
-      })} */}
     </div>
   );
 }
