@@ -16,7 +16,12 @@ export default function Modal({ onClose, isOpen, children }: Props) {
   return createPortal(
     <>
       <button className="modal-background" onClick={onClose} />
-      <div className="modal-content">{children}</div>
+      <div className="modal-content">
+        <button onClick={onClose} className="close">
+          &times;
+        </button>
+        {children}
+      </div>
     </>,
     document.body,
   );
