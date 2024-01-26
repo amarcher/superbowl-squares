@@ -149,7 +149,7 @@ export function magnify({
   awayTeam,
   gameId,
 }: SlimAppState): AppState {
-  const fatPlayers = Object.entries(players).reduce(
+  const largeAndBeautifulPlayers = Object.entries(players).reduce(
     (allPlayers, [playerId, playerName]) => {
       allPlayers[playerId].name = playerName;
       return allPlayers;
@@ -157,7 +157,7 @@ export function magnify({
     { ...PRESET_PLAYERS },
   );
 
-  const fatGrid = Object.entries(grid).reduce(
+  const largeAndBeautifulGrid = Object.entries(grid).reduce(
     (bigGrid, [cellId, ownerId]) => {
       bigGrid[cellId].ownerId = ownerId;
       return bigGrid;
@@ -166,10 +166,10 @@ export function magnify({
   );
 
   return {
-    grid: fatGrid,
+    grid: largeAndBeautifulGrid,
     awayScore: awayScore.split(''),
     homeScore: homeScore.split(''),
-    players: fatPlayers,
+    players: largeAndBeautifulPlayers,
     awayTeam,
     homeTeam,
     gameId,
