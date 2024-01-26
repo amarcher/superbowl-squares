@@ -1,10 +1,10 @@
-import type PlayerType from "./types/player";
+import type PlayerType from './types/player';
 
 const SCORES = {
   touchdown: 7,
-  "field goal": 3,
-  "touchdown + extra 2 points": 8,
-  "touchdown + missed kick": 6,
+  'field goal': 3,
+  'touchdown + extra 2 points': 8,
+  'touchdown + missed kick': 6,
   safety: 2,
   /**
    * Below in comments for completeness, but we don't
@@ -17,7 +17,7 @@ const SCORES = {
 export function allNextScores(
   homeScore: number,
   awayScore: number,
-  scoreToOwner: (homeScore: number, awayScore: number) => PlayerType
+  scoreToOwner: (homeScore: number, awayScore: number) => PlayerType,
 ) {
   const scoreOptions = Object.entries(SCORES);
   const combinations = [];
@@ -31,14 +31,14 @@ export function allNextScores(
       home: homeScoreOption,
       away: awayScore,
       type: scoreType,
-      scorer: "home",
+      scorer: 'home',
       owner: scoreToOwner(homeScoreOption, awayScore),
     });
     combinations.push({
       home: homeScore,
       away: awayScoreOption,
       type: scoreType,
-      scorer: "away",
+      scorer: 'away',
       owner: scoreToOwner(homeScore, awayScoreOption),
     });
   }
@@ -48,6 +48,9 @@ export function allNextScores(
   });
 }
 
-export function scoreToOwnerKey(homeScore: number, awayScore: number): string {
+export function scoreToOwnerKey(
+  homeScore: number | string,
+  awayScore: number | string,
+): string {
   return `${homeScore},${awayScore}`;
 }

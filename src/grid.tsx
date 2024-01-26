@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 import { useUpdateScores } from './hooks';
 import { getRandomDigits, shuffle } from './utils';
-import { allNextScores, scoreToOwnerKey } from './future-utils';
 import Square from './square';
 import Player from './player';
 import Score from './score';
@@ -20,7 +19,7 @@ import { LOCAL_STORAGE_KEY } from './constants';
 import './Grid.css';
 import type SquareType from './types/square';
 import type PlayerType from './types/player';
-import Modal from './modal';
+import SummaryModal from './summaryModal';
 
 const emptySquare = {
   ownerId: undefined,
@@ -321,37 +320,6 @@ export default function Grid({
     [grid],
   );
 
-  const scoreToOwnerIdMap = React.useMemo(() => {
-    const updatedScoreToOwnerIdMap = Object.keys(grid).reduce(
-      (map, id) => {
-        const square = grid[id];
-
-        if (square.ownerId !== undefined) {
-          const homeScoreIndex = id[1];
-          const awayScoreIndex = id[0];
-          const scoreKey = scoreToOwnerKey(
-            homeScore[parseInt(homeScoreIndex, 10)],
-            awayScore[parseInt(awayScoreIndex, 10)],
-          );
-          map[scoreKey] = square.ownerId;
-        }
-
-        return map;
-      },
-      {} as Record<string, string>,
-    );
-
-    return updatedScoreToOwnerIdMap;
-  }, [awayScore, grid, homeScore]);
-
-  /**
-   * @param {number} homeScore
-   * @param {number} awayScore
-   */
-  function scoreToOwner(homeScore: number, awayScore: number) {
-    return players[scoreToOwnerIdMap[scoreToOwnerKey(homeScore, awayScore)]];
-  }
-
   const autoPick = useCallback(() => {
     dispatch({
       type: 'auto-pick',
@@ -454,64 +422,19 @@ export default function Grid({
             setGameId={setGameId}
             games={games}
           />
-          <Modal isOpen={isSummaryOpen} onClose={hideSummary}>
-            {scores}
-
-            {isSummaryOpen && (
-              <>
-                <h2>
-                  <span
-                    className="emphasize-name"
-                    style={{
-                      backgroundColor: scoreToOwner(
-                        homeActualScore,
-                        awayActualScore,
-                      )?.color,
-                    }}>
-                    {scoreToOwner(homeActualScore, awayActualScore).name}
-                  </span>{' '}
-                  is leading, but...
-                </h2>
-                {allNextScores(
-                  homeActualScore,
-                  awayActualScore,
-                  scoreToOwner,
-                ).map((nextScore, idx) => {
-                  if (!nextScore.owner?.name) {
-                    return null;
-                  }
-
-                  const team =
-                    nextScore.scorer === 'home' ? homeTeam : awayTeam;
-
-                  return (
-                    <div key={idx} className="win-conditional">
-                      <div
-                        className="emphasize-name"
-                        style={{ backgroundColor: nextScore.owner.color }}>
-                        {nextScore.owner.name}
-                      </div>
-                      wins if
-                      <div className={`emphasize-name ${team.toLowerCase()}`}>
-                        {team}
-                      </div>
-                      scores a{' '}
-                      <span className="action-type">{nextScore.type}</span>
-                      <span
-                        className={`win-cond-score ${awayTeam.toLowerCase()}`}>
-                        {nextScore.away}
-                      </span>{' '}
-                      -{' '}
-                      <span
-                        className={`win-cond-score ${homeTeam.toLowerCase()}`}>
-                        {nextScore.home}
-                      </span>
-                    </div>
-                  );
-                })}
-              </>
-            )}
-          </Modal>
+          <SummaryModal
+            isOpen={isSummaryOpen}
+            onClose={hideSummary}
+            scores={scores}
+            homeTeam={homeTeam}
+            awayTeam={awayTeam}
+            homeActualScore={homeActualScore}
+            awayActualScore={awayActualScore}
+            grid={grid}
+            homeScore={homeScore}
+            awayScore={awayScore}
+            players={players}
+          />
         </div>
       </div>
 
