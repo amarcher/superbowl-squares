@@ -123,15 +123,14 @@ export default function SummaryModal({
           focus === -1 ? 1 : 2,
         ).map((nextScore, idx) => {
           return (
-            <>
+            <React.Fragment key={idx}>
               <WinnerPossibilityView
-                key={idx}
                 nextScore={nextScore}
                 homeTeam={homeTeam}
                 awayTeam={awayTeam}
               />
               <hr />
-            </>
+            </React.Fragment>
           );
         })}
       </div>
@@ -140,7 +139,6 @@ export default function SummaryModal({
 }
 
 interface WinnerProps {
-  key: number;
   nextScore: FuturePossibility;
   homeTeam: string;
   awayTeam: string;
@@ -148,7 +146,6 @@ interface WinnerProps {
 }
 
 function WinnerPossibilityView({
-  key,
   nextScore,
   homeTeam,
   awayTeam,
@@ -184,7 +181,6 @@ function WinnerPossibilityView({
       </div>
       {nextScore.prior ? (
         <WinnerPossibilityView
-          key={key}
           nextScore={nextScore.prior}
           homeTeam={homeTeam}
           awayTeam={awayTeam}
