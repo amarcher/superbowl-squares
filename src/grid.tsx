@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 import { useUpdateScores } from './hooks';
 import { getRandomDigits, shuffle } from './utils';
-import { /* allNextScores, */ scoreToOwnerKey } from './future-utils';
 import Square from './square';
 import Player from './player';
 import Score from './score';
@@ -20,6 +19,7 @@ import { LOCAL_STORAGE_KEY } from './constants';
 import './Grid.css';
 import type SquareType from './types/square';
 import type PlayerType from './types/player';
+import SummaryModal from './summaryModal';
 
 const emptySquare = {
   ownerId: undefined,
@@ -320,37 +320,6 @@ export default function Grid({
     [grid],
   );
 
-  const scoreToOwnerIdMap = React.useMemo(() => {
-    const updatedScoreToOwnerIdMap = Object.keys(grid).reduce(
-      (map, id) => {
-        const square = grid[id];
-
-        if (square.ownerId !== undefined) {
-          const homeScoreIndex = id[1];
-          const awayScoreIndex = id[0];
-          const scoreKey = scoreToOwnerKey(
-            homeScore[parseInt(homeScoreIndex, 10)],
-            awayScore[parseInt(awayScoreIndex, 10)],
-          );
-          map[scoreKey] = square.ownerId;
-        }
-
-        return map;
-      },
-      {} as Record<string, string>,
-    );
-
-    return updatedScoreToOwnerIdMap;
-  }, [awayScore, grid, homeScore]);
-
-  /**
-   * @param {number} homeScore
-   * @param {number} awayScore
-   */
-  function scoreToOwner(homeScore: number, awayScore: number) {
-    return players[scoreToOwnerIdMap[scoreToOwnerKey(homeScore, awayScore)]];
-  }
-
   const autoPick = useCallback(() => {
     dispatch({
       type: 'auto-pick',
@@ -359,6 +328,48 @@ export default function Grid({
       },
     });
   }, [namedPlayers]);
+
+  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
+  const showSummary = useCallback(
+    () => setIsSummaryOpen(true),
+    [setIsSummaryOpen],
+  );
+  const hideSummary = useCallback(
+    () => setIsSummaryOpen(false),
+    [setIsSummaryOpen],
+  );
+
+  const scores = (
+    <div className="score-container">
+      <label className="score-label">
+        {awayTeam}
+        <input
+          onChange={setActualScore}
+          value={awayActualScore}
+          name="away-actual-score"
+          placeholder={awayTeam}
+          className={`score-input ${awayTeam?.toLowerCase()}`}
+          type="number"
+          min="0"
+          disabled={isAutoUpdating}
+        />
+      </label>
+      <div className="score-divider">-</div>
+      <label className="score-label">
+        {homeTeam}
+        <input
+          onChange={setActualScore}
+          value={homeActualScore}
+          name="home-actual-score"
+          placeholder={homeTeam}
+          className={`score-input ${homeTeam?.toLowerCase()}`}
+          type="number"
+          min="0"
+          disabled={isAutoUpdating}
+        />
+      </label>
+    </div>
+  );
 
   return (
     <div className="container">
@@ -393,6 +404,11 @@ export default function Grid({
           <button onClick={isLocked ? unlock : lock} className="button">
             {isLocked ? 'Unlock' : 'Lock'}
           </button>
+          {isLocked && (
+            <button onClick={showSummary} className="button">
+              Summary
+            </button>
+          )}
           <EditPlayers
             isOpen={isEditPlayersModalOpen}
             onClose={closeEditPlayersModal}
@@ -406,38 +422,23 @@ export default function Grid({
             setGameId={setGameId}
             games={games}
           />
+          <SummaryModal
+            isOpen={isSummaryOpen}
+            onClose={hideSummary}
+            scores={scores}
+            homeTeam={homeTeam}
+            awayTeam={awayTeam}
+            homeActualScore={homeActualScore}
+            awayActualScore={awayActualScore}
+            grid={grid}
+            homeScore={homeScore}
+            awayScore={awayScore}
+            players={players}
+          />
         </div>
       </div>
 
-      <div className="score-container">
-        <label className="score-label">
-          {awayTeam}
-          <input
-            onChange={setActualScore}
-            value={awayActualScore}
-            name="away-actual-score"
-            placeholder={awayTeam}
-            className={`score-input ${awayTeam?.toLowerCase()}`}
-            type="number"
-            min="0"
-            disabled={isAutoUpdating}
-          />
-        </label>
-        <div className="score-divider">-</div>
-        <label className="score-label">
-          {homeTeam}
-          <input
-            onChange={setActualScore}
-            value={homeActualScore}
-            name="home-actual-score"
-            placeholder={homeTeam}
-            className={`score-input ${homeTeam?.toLowerCase()}`}
-            type="number"
-            min="0"
-            disabled={isAutoUpdating}
-          />
-        </label>
-      </div>
+      {scores}
 
       <div className="time">
         <div className="clock">{clock}</div>
@@ -499,22 +500,6 @@ export default function Grid({
           return square;
         })}
       </div>
-      {/* Put below in a modal! */}
-      {/* <h2>In one score...</h2>
-      {allNextScores(homeActualScore, awayActualScore).map((nextScore, idx) => {
-        const ownerName = scoreToOwner(nextScore.home, nextScore.away)?.name;
-
-        if (!ownerName) {
-          return null;
-        }
-
-        return (
-          <div key={idx}>
-            If {nextScore.scorer} scores a {nextScore.type}: {ownerName} is in
-            the lead! ({nextScore.away}-{nextScore.home})
-          </div>
-        );
-      })} */}
     </div>
   );
 }
