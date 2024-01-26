@@ -371,39 +371,37 @@ export default function Grid({
     [setIsSummaryOpen],
   );
 
-  function scores() {
-    return (
-      <div className="score-container">
-        <label className="score-label">
-          {awayTeam}
-          <input
-            onChange={setActualScore}
-            value={awayActualScore}
-            name="away-actual-score"
-            placeholder={awayTeam}
-            className={`score-input ${awayTeam?.toLowerCase()}`}
-            type="number"
-            min="0"
-            disabled={isAutoUpdating}
-          />
-        </label>
-        <div className="score-divider">-</div>
-        <label className="score-label">
-          {homeTeam}
-          <input
-            onChange={setActualScore}
-            value={homeActualScore}
-            name="home-actual-score"
-            placeholder={homeTeam}
-            className={`score-input ${homeTeam?.toLowerCase()}`}
-            type="number"
-            min="0"
-            disabled={isAutoUpdating}
-          />
-        </label>
-      </div>
-    );
-  }
+  const scores = (
+    <div className="score-container">
+      <label className="score-label">
+        {awayTeam}
+        <input
+          onChange={setActualScore}
+          value={awayActualScore}
+          name="away-actual-score"
+          placeholder={awayTeam}
+          className={`score-input ${awayTeam?.toLowerCase()}`}
+          type="number"
+          min="0"
+          disabled={isAutoUpdating}
+        />
+      </label>
+      <div className="score-divider">-</div>
+      <label className="score-label">
+        {homeTeam}
+        <input
+          onChange={setActualScore}
+          value={homeActualScore}
+          name="home-actual-score"
+          placeholder={homeTeam}
+          className={`score-input ${homeTeam?.toLowerCase()}`}
+          type="number"
+          min="0"
+          disabled={isAutoUpdating}
+        />
+      </label>
+    </div>
+  );
 
   return (
     <div className="container">
@@ -457,61 +455,67 @@ export default function Grid({
             games={games}
           />
           <Modal isOpen={isSummaryOpen} onClose={hideSummary}>
-            {scores()}
+            {scores}
 
-            <h2>
-              <span
-                className="emphasize-name"
-                style={{
-                  backgroundColor: scoreToOwner(
-                    homeActualScore,
-                    awayActualScore
-                  ).color,
-                }}
-              >
-                {scoreToOwner(homeActualScore, awayActualScore).name}
-              </span>{" "}
-              is leading, but...
-            </h2>
-            {allNextScores(homeActualScore, awayActualScore, scoreToOwner).map(
-              (nextScore, idx) => {
-                if (!nextScore.owner?.name) {
-                  return null;
-                }
+            {isSummaryOpen && (
+              <>
+                <h2>
+                  <span
+                    className="emphasize-name"
+                    style={{
+                      backgroundColor: scoreToOwner(
+                        homeActualScore,
+                        awayActualScore,
+                      )?.color,
+                    }}>
+                    {scoreToOwner(homeActualScore, awayActualScore).name}
+                  </span>{' '}
+                  is leading, but...
+                </h2>
+                {allNextScores(
+                  homeActualScore,
+                  awayActualScore,
+                  scoreToOwner,
+                ).map((nextScore, idx) => {
+                  if (!nextScore.owner?.name) {
+                    return null;
+                  }
 
-                const team = nextScore.scorer === 'home' ? homeTeam : awayTeam;
+                  const team =
+                    nextScore.scorer === 'home' ? homeTeam : awayTeam;
 
-                return (
-                  <div key={idx} className="win-conditional">
-                    <div
-                      className="emphasize-name"
-                      style={{ backgroundColor: nextScore.owner.color }}>
-                      {nextScore.owner.name}
+                  return (
+                    <div key={idx} className="win-conditional">
+                      <div
+                        className="emphasize-name"
+                        style={{ backgroundColor: nextScore.owner.color }}>
+                        {nextScore.owner.name}
+                      </div>
+                      wins if
+                      <div className={`emphasize-name ${team.toLowerCase()}`}>
+                        {team}
+                      </div>
+                      scores a{' '}
+                      <span className="action-type">{nextScore.type}</span>
+                      <span
+                        className={`win-cond-score ${awayTeam.toLowerCase()}`}>
+                        {nextScore.away}
+                      </span>{' '}
+                      -{' '}
+                      <span
+                        className={`win-cond-score ${homeTeam.toLowerCase()}`}>
+                        {nextScore.home}
+                      </span>
                     </div>
-                    wins if
-                    <div className={`emphasize-name ${team.toLowerCase()}`}>
-                      {team}
-                    </div>
-                    scores a{' '}
-                    <span className="action-type">{nextScore.type}</span>
-                    <span
-                      className={`win-cond-score ${awayTeam.toLowerCase()}`}>
-                      {nextScore.away}
-                    </span>{' '}
-                    -{' '}
-                    <span
-                      className={`win-cond-score ${homeTeam.toLowerCase()}`}>
-                      {nextScore.home}
-                    </span>
-                  </div>
-                );
-              },
+                  );
+                })}
+              </>
             )}
           </Modal>
         </div>
       </div>
 
-      {scores()}
+      {scores}
 
       <div className="time">
         <div className="clock">{clock}</div>
