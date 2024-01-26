@@ -5,6 +5,6 @@ export default interface Game {
   clock?: string;
   period?: number;
   homeTeam?: string;
-  awayTeam?: string;
+  awayTeam?: 'AWAY';
   games: Omit<Game, 'games'>;
 }
