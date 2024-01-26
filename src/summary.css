@@ -1,0 +1,45 @@
+.emphasize-name {
+  display: inline-block;
+  border: black 2px solid;
+  border-radius: 6px;
+  padding: 4px;
+  font-weight: 600;
+  margin: 0 5px;
+}
+
+.win-conditional {
+  margin-bottom: 10px;
+}
+
+.win-cond-score {
+  padding: 4px;
+  border-radius: 5px;
+}
+
+.action-type {
+  font-weight: bold;
+  font-size: 17px;
+  margin-right: 10px;
+}
+
+.summary-inner {
+  overflow: scroll;
+  height: 100%;
+}
+
+.sum-space-pls {
+  margin-left: 50px;
+}
+
+.summary-focus {
+  margin-bottom: 10px;
+}
+
+.summary-focus {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.summary-focus > button {
+  margin-left: 10px;
+}
