@@ -45,7 +45,7 @@ export interface FuturePossibility {
   away: number;
   score: Score;
   scorer: 'home' | 'away';
-  owner: PlayerType;
+  owner?: PlayerType;
   prior: FuturePossibility | null;
 }
 
@@ -53,14 +53,17 @@ export function futureWinnerPossibilities(
   careAbout: -1 | string, // -1 means care about all, otherwise pass a player name
   homeScore: number,
   awayScore: number,
-  scoreToOwner: (homeScore: number, awayScore: number) => PlayerType,
+  scoreToOwner: (
+    homeScore: number,
+    awayScore: number,
+  ) => PlayerType | undefined,
   depth: number,
   prior: FuturePossibility | null = null,
 ): Array<FuturePossibility> {
   let possibilities: Array<FuturePossibility> = [];
 
   function add(poss: FuturePossibility) {
-    if (careAbout === -1 || careAbout === poss.owner.name) {
+    if (poss.owner && (careAbout === -1 || careAbout === poss.owner.name)) {
       possibilities.push(poss);
     }
   }

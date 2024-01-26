@@ -6,7 +6,7 @@ import {
 } from './future-utils';
 import Modal from './modal';
 import Grid from './types/grid';
-import Players from './types/player';
+import Player from './types/player';
 import './summary.css';
 
 interface Props {
@@ -15,7 +15,7 @@ interface Props {
   grid: Grid;
   homeScore: string[];
   awayScore: string[];
-  players: Record<string, Players>;
+  players: Record<string, Player>;
   homeActualScore: number;
   awayActualScore: number;
   homeTeam: string;
@@ -69,6 +69,11 @@ export default function SummaryModal({
     [players, scoreToOwnerIdMap],
   );
 
+  const winningSquaresOwningPlayer: Player | undefined = scoreToOwner(
+    homeActualScore,
+    awayActualScore,
+  );
+
   const [focus, setFocus] = React.useState<-1 | string>(-1);
 
   return (
@@ -79,10 +84,9 @@ export default function SummaryModal({
           <span
             className="emphasize-name"
             style={{
-              backgroundColor: scoreToOwner(homeActualScore, awayActualScore)
-                ?.color,
+              backgroundColor: winningSquaresOwningPlayer?.color || 'white',
             }}>
-            {scoreToOwner(homeActualScore, awayActualScore).name}
+            {winningSquaresOwningPlayer?.name || 'Noone'}
           </span>{' '}
           is leading, but...
         </h2>

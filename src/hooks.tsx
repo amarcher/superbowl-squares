@@ -34,10 +34,10 @@ function getGameFromEvent(event: Event) {
   if (competitors) {
     competitors.forEach((competitor) => {
       if (competitor?.homeAway === 'home') {
-        game.home = parseInt(competitor?.score, 10);
+        game.home = parseInt(competitor?.score, 10) || 0;
         game.homeTeam = competitor?.team?.abbreviation || 'HOME';
       } else {
-        game.away = parseInt(competitor?.score, 10);
+        game.away = parseInt(competitor?.score, 10) || 0;
         game.awayTeam = competitor?.team?.abbreviation || 'AWAY';
       }
     });
