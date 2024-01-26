@@ -274,27 +274,3 @@
 .button:focus {
   outline: none;
 }
-
-.emphasize-name {
-  display: inline-block;
-  border: black 2px solid;
-  border-radius: 6px;
-  padding: 4px;
-  font-weight: 600;
-  margin: 0 5px;
-}
-
-.win-conditional {
-  margin-bottom: 10px;
-}
-
-.win-cond-score {
-  padding: 4px;
-  border-radius: 5px;
-}
-
-.action-type {
-  font-weight: bold;
-  font-size: 17px;
-  margin-right: 10px;
-}
