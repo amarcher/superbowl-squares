@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 
 import './Player.css';
-import Square from './types/square';
 
 interface Props {
   id?: string;

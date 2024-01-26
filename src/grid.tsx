@@ -6,7 +6,15 @@ import React, {
   useEffect,
 } from 'react';
 import { useUpdateScores } from './hooks';
-import { getRandomDigits, shuffle, writeStateToQueryParms } from './utils';
+import {
+  getRandomDigits,
+  PRESET_PLAYERS,
+  writeStateToUrl,
+  randomizeGridForOwnerIds,
+  INITIAL_GRID,
+  minify,
+  FULL_IDS,
+} from './utils';
 import { /* allNextScores, */ scoreToOwnerKey } from './future-utils';
 import Square from './square';
 import Player from './player';
@@ -14,82 +22,12 @@ import Score from './score';
 import Legend from './legend';
 import EditPlayers from './editPlayers';
 import EditGame from './editGame';
-import colors from './colors';
 import type GridType from './types/grid';
 import { LOCAL_STORAGE_KEY } from './constants';
 import './Grid.css';
-import type SquareType from './types/square';
 import type PlayerType from './types/player';
 
-const emptySquare = {
-  ownerId: undefined,
-} as SquareType;
-
 const PERIOD = ['', '1st', '2nd', '3rd', '4th'];
-
-function getEmptySquare(id: string): SquareType {
-  return {
-    ...emptySquare,
-    id: id,
-  };
-}
-
-const names = ['ENTER', 'PLAYERS’', 'INITIALS'];
-
-const presetPlayers: Record<string, PlayerType> = Array(100)
-  .fill(undefined)
-  .map((_, id) => id)
-  .reduce(
-    (players, playerId) => ({
-      ...players,
-      [playerId]: getEmptyPlayer(playerId),
-    }),
-    {} as Record<string, PlayerType>,
-  );
-
-function getEmptyPlayer(id: number | string): PlayerType {
-  return {
-    color: colors[typeof id === 'number' ? id : parseInt(id, 10)],
-    id: String(id),
-    name: names[typeof id === 'number' ? id : parseInt(id, 10)],
-  };
-}
-
-const ids = '0123456789'.split('');
-const fullIds = ids.reduce(
-  (grid, rowNumber: string) => [
-    ...grid,
-    ...ids.reduce(
-      (row: string[], columnNumber: string) => [
-        ...row,
-        `${rowNumber}${columnNumber}`,
-      ],
-      [],
-    ),
-  ],
-  [] as string[],
-);
-
-const initialGrid: GridType = fullIds.reduce(
-  (grid, id) => ({
-    ...grid,
-    [id]: getEmptySquare(id),
-  }),
-  {} as GridType,
-);
-
-function randomizeGridForOwnerIds(ownerIds: string[]) {
-  return shuffle(fullIds).reduce(
-    (grid: GridType, id: string, index: number) => ({
-      ...grid,
-      [id]: {
-        id,
-        ownerId: ownerIds[index % ownerIds.length],
-      },
-    }),
-    {} as GridType,
-  );
-}
 
 function gridReducer(state: GridType, { type, payload }: any) {
   switch (type) {
@@ -124,8 +62,8 @@ function gridReducer(state: GridType, { type, payload }: any) {
 interface Props {
   initialGridState?: GridType;
   initialPlayers?: Record<string, PlayerType>;
-  initialAwayScore?: number[];
-  initialHomeScore?: number[];
+  initialAwayScore?: string[];
+  initialHomeScore?: string[];
   initialHomeTeam?: string;
   initialAwayTeam?: string;
   initialGameId?: string;
@@ -142,9 +80,11 @@ export default function Grid({
 }: Props) {
   const [grid, dispatch] = useReducer(
     gridReducer,
-    initialGridState || initialGrid,
+    initialGridState || { ...INITIAL_GRID },
   );
-  const [players, setPlayers] = useState(initialPlayers || presetPlayers);
+  const [players, setPlayers] = useState(
+    initialPlayers || { ...PRESET_PLAYERS },
+  );
   const [activePlayerId, setActivePlayerId] = useState(0);
   const [isLocked, setIsLocked] = useState(!!initialPlayers);
   const [homeScore, setHomeScore] = useState(
@@ -252,6 +192,20 @@ export default function Grid({
     [dispatch, isLocked, activePlayerId],
   );
 
+  const serializableGameState = useMemo(
+    () =>
+      minify({
+        homeScore,
+        awayScore,
+        grid,
+        players,
+        homeTeam,
+        awayTeam,
+        gameId,
+      }),
+    [homeScore, awayScore, grid, players, homeTeam, awayTeam, gameId],
+  );
+
   const lock = useCallback(() => {
     setHomeScore(getRandomDigits());
     setAwayScore(getRandomDigits());
@@ -259,23 +213,9 @@ export default function Grid({
     setIsAutoUpdating(true);
   }, []);
 
-  const serializableGameState = useMemo(
-    () => ({
-      homeScore,
-      awayScore,
-      grid,
-      players,
-      homeTeam,
-      awayTeam,
-      gameId,
-    }),
-    [homeScore, awayScore, grid, players, homeTeam, awayTeam, gameId],
-  );
-
   useEffect(() => {
     if (isLocked) {
-      // writeStateToQueryParms(serializableGameState);
-      console.log(serializableGameState);
+      writeStateToUrl(serializableGameState);
 
       if (window.localStorage) {
         localStorage.setItem(
@@ -465,7 +405,7 @@ export default function Grid({
             className={homeTeam?.toLowerCase()}
           />
         ))}
-        {fullIds.map((id) => {
+        {FULL_IDS.map((id) => {
           const { color, name } = players[grid[id].ownerId!] || {};
           const square = (
             <Square
