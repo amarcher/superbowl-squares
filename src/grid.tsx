@@ -126,26 +126,6 @@ export default function Grid({
     [setGameState],
   );
 
-  const setAwayActualScore = useCallback(
-    (away: number) => {
-      setGameState((prevState) => ({
-        ...prevState,
-        away,
-      }));
-    },
-    [setGameState],
-  );
-
-  const setHomeActualScore = useCallback(
-    (home: number) => {
-      setGameState((prevState) => ({
-        ...prevState,
-        home,
-      }));
-    },
-    [setGameState],
-  );
-
   const editPlayers = useCallback(() => setIsEditPlayersModalOpen(true), []);
   const editGame = useCallback(() => setIsEditGameModalOpen(true), []);
   const closeEditPlayersModal = useCallback(
@@ -234,13 +214,16 @@ export default function Grid({
 
   const setActualScore = useCallback(
     ({ target: { name, value } }: React.ChangeEvent<HTMLInputElement>) => {
-      if (name === 'away-actual-score') {
-        setAwayActualScore(parseInt(value, 10));
-      } else {
-        setHomeActualScore(parseInt(value, 10));
-      }
+      const scoreToSet = name === 'away-actual-score' ? 'away' : 'home';
+      const valueToSet =
+        value && typeof value === 'string' ? parseInt(value, 10) : value;
+
+      setGameState((prevState) => ({
+        ...prevState,
+        [scoreToSet]: valueToSet,
+      }));
     },
-    [setAwayActualScore, setHomeActualScore],
+    [setGameState],
   );
 
   const unlock = useCallback(() => {
@@ -286,7 +269,7 @@ export default function Grid({
         {awayTeam}
         <input
           onChange={setActualScore}
-          value={awayActualScore}
+          value={awayActualScore ?? ''}
           name="away-actual-score"
           placeholder={awayTeam}
           className={`score-input ${awayTeam?.toLowerCase()}`}
@@ -300,7 +283,7 @@ export default function Grid({
         {homeTeam}
         <input
           onChange={setActualScore}
-          value={homeActualScore}
+          value={homeActualScore ?? ''}
           name="home-actual-score"
           placeholder={homeTeam}
           className={`score-input ${homeTeam?.toLowerCase()}`}
