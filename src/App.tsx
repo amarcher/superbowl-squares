@@ -1,6 +1,7 @@
 import React from 'react';
 import Grid from './grid';
 import { LOCAL_STORAGE_KEY } from './constants';
+import { readStateFromUrl, magnify } from './utils';
 import './App.css';
 
 function App() {
@@ -14,7 +15,10 @@ function App() {
 
   try {
     ({ grid, awayScore, homeScore, players, homeTeam, awayTeam, gameId } =
-      JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || ''));
+      magnify(
+        readStateFromUrl() ||
+          JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || ''),
+      ));
   } catch {
     // do nothing
   }
