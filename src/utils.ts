@@ -34,9 +34,9 @@ export function shuffle<T>(array: T[]) {
     .map(({ value }) => value);
 }
 
-const INITIAL_NAMES = ['ENTER', 'PLAYERS’', 'INITIALS'];
+const PRESET_NAMES = ['ENTER', 'PLAYERS’', 'INITIALS'];
 
-export const PRESET_PLAYERS: Record<string, Player> = Array(100)
+export const EMPTY_PLAYERS: Record<string, Player> = Array(100)
   .fill(undefined)
   .map((_, id) => id)
   .reduce(
@@ -47,11 +47,18 @@ export const PRESET_PLAYERS: Record<string, Player> = Array(100)
     {} as Record<string, Player>,
   );
 
+export const PRESET_PLAYERS: Record<string, Player> = {
+  ...EMPTY_PLAYERS,
+  '0': { ...EMPTY_PLAYERS['0'], name: PRESET_NAMES[0] },
+  '1': { ...EMPTY_PLAYERS['1'], name: PRESET_NAMES[1] },
+  '2': { ...EMPTY_PLAYERS['2'], name: PRESET_NAMES[2] },
+};
+
 export function getEmptyPlayer(id: number | string): Player {
   return {
     color: COLORS[typeof id === 'number' ? id : parseInt(id, 10)],
     id: String(id),
-    name: INITIAL_NAMES[typeof id === 'number' ? id : parseInt(id, 10)],
+    name: '',
   };
 }
 
@@ -149,13 +156,19 @@ export function magnify({
   awayTeam,
   gameId,
 }: SlimAppState): AppState {
-  const largeAndBeautifulPlayers = Object.entries(players).reduce(
-    (allPlayers, [playerId, playerName]) => {
-      allPlayers[playerId].name = playerName;
-      return allPlayers;
-    },
-    { ...PRESET_PLAYERS },
-  );
+  const largeAndBeautifulPlayers =
+    Object.entries(players).length > 0
+      ? Object.entries(players).reduce(
+          (allPlayers, [playerId, playerName]) => {
+            allPlayers[playerId].name = playerName;
+            return allPlayers;
+          },
+          { ...EMPTY_PLAYERS },
+        )
+      : { ...PRESET_PLAYERS };
+
+  console.log(largeAndBeautifulPlayers);
+  console.log(Object.entries(players));
 
   const largeAndBeautifulGrid = Object.entries(grid).reduce(
     (bigGrid, [cellId, ownerId]) => {
