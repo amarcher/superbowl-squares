@@ -77,9 +77,8 @@ export default function SummaryModal({
   const [focus, setFocus] = React.useState<-1 | string>(-1);
 
   return (
-    <Modal onClose={onClose} isOpen={isOpen}>
+    <Modal onClose={onClose} isOpen={isOpen} headerContent={scores}>
       <div className="summary-inner">
-        {scores}
         <h2>
           <span
             className="emphasize-name"

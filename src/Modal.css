@@ -10,9 +10,8 @@
   background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
 }
 
-/* Modal Content/Box */
-.modal-content {
-  position: fixed;
+.modal {
+  position: absolute;
   top: 5vh;
   left: 5vw;
   right: 5vw;
@@ -21,8 +20,6 @@
   margin: auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 90vw;
-  height: 90vh;
   box-shadow:
     0 4px 8px 0 rgba(0, 0, 0, 0.2),
     0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -30,13 +27,29 @@
   animation-duration: 0.4s;
   z-index: 2;
   border-radius: 5px;
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  min-height: 36px;
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.modal-body {
+  overflow-y: auto;
+  flex: 1 1 auto;
 }
 
 .close {
+  position: absolute;
   color: #aaa;
-  float: right;
   font-size: 28px;
   font-weight: bold;
+  top: 4px;
+  right: 4px;
 }
 
 .close:hover,
