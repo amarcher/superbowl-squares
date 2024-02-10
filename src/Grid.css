@@ -7,6 +7,10 @@
   height: calc(100% - 20px);
 }
 
+.hidden {
+  display: none;
+}
+
 .control-container {
   display: flex;
   align-items: center;

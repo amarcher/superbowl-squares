@@ -320,19 +320,19 @@ export default function Grid({
               <button onClick={autoPick} className="button">
                 Auto-Pick
               </button>
-              <button onClick={editGame} className="button">
+              <button onClick={editGame} className="button hidden">
                 Game
               </button>
             </>
           )}
-          <button onClick={isLocked ? unlock : lock} className="button">
-            {isLocked ? 'Unlock' : 'Lock'}
-          </button>
           {isLocked && (
             <button onClick={showSummary} className="button">
               Summary
             </button>
           )}
+          <button onClick={isLocked ? unlock : lock} className="button">
+            {isLocked ? 'Unlock' : 'Lock'}
+          </button>
           <EditPlayers
             isOpen={isEditPlayersModalOpen}
             onClose={closeEditPlayersModal}
