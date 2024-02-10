@@ -30,14 +30,15 @@ export default function Square({
   const style = useMemo(
     () => ({
       backgroundColor: ownerColor ? ownerColor : 'white',
-      boxShadow: isCurrentWinner ? 'rgb(82 212 0) 0px 0px 5px 5px' : undefined,
-      zIndex: isCurrentWinner ? 0 : undefined,
     }),
-    [ownerColor, isCurrentWinner],
+    [ownerColor],
   );
 
   return (
-    <button onClick={onClick} style={style} className="cell">
+    <button
+      onClick={onClick}
+      style={style}
+      className={`cell${isCurrentWinner ? ' winning' : ''}`}>
       <div className="square">{ownerName}</div>
     </button>
   );
