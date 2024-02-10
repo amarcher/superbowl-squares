@@ -17,3 +17,23 @@
 .cell:focus {
   outline: none;
 }
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 4px rgba(82, 212, 0, 0.8);
+  }
+
+  70% {
+    box-shadow: 0 0 0 6px rgba(82, 212, 0, 1);
+  }
+
+  100% {
+    box-shadow: 0 0 0 4px rgba(82, 212, 0, 0.8);
+  }
+}
+
+.winning {
+  box-shadow: rgba(82, 212, 0, 1) 0px 0px 5px 5px;
+  z-index: 0;
+  animation: pulse 2s infinite;
+}
