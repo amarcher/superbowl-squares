@@ -320,9 +320,10 @@ export default function Grid({
               <button onClick={autoPick} className="button">
                 Auto-Pick
               </button>
-              <button onClick={editGame} className="button">
+              {/* Hide for Superbowl */}
+              {/* <button onClick={editGame} className="button">
                 Game
-              </button>
+              </button> */}
             </>
           )}
           <button onClick={isLocked ? unlock : lock} className="button">
