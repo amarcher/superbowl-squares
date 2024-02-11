@@ -252,7 +252,18 @@ export default function Grid({
       async (data: { secureShortURL: string }) => {
         const { secureShortURL } = data;
 
-        if (typeof navigator?.clipboard?.writeText === 'function') {
+        const sharePayload = {
+          url: secureShortURL,
+          title: 'Superbowl Squares',
+        };
+
+        if (
+          typeof navigator?.canShare === 'function' &&
+          navigator.canShare(sharePayload)
+        ) {
+          await navigator.share();
+          return;
+        } else if (typeof navigator?.clipboard?.writeText === 'function') {
           try {
             await navigator.clipboard.writeText(secureShortURL);
             toast.success('Copied link to game');
