@@ -255,13 +255,14 @@ export default function Grid({
         const sharePayload = {
           url: secureShortURL,
           title: 'Superbowl Squares',
+          text: 'Keep track of the game!',
         };
 
         if (
           typeof navigator?.canShare === 'function' &&
           navigator.canShare(sharePayload)
         ) {
-          await navigator.share();
+          await navigator.share(sharePayload);
           return;
         } else if (typeof navigator?.clipboard?.writeText === 'function') {
           try {
