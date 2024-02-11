@@ -5,7 +5,6 @@ import React, {
   useMemo,
   useEffect,
 } from 'react';
-import copyToClipboard from 'copy-to-clipboard';
 import toast from 'react-hot-toast';
 
 import { useUpdateScores } from './hooks';
@@ -248,16 +247,20 @@ export default function Grid({
     [grid],
   );
 
-  const share = useCallback(() => {
-    getShortUrl(window.location.href).then(
-      (data: { secureShortURL: string }) => {
+  const share = useCallback(async () => {
+    return getShortUrl(window.location.href).then(
+      async (data: { secureShortURL: string }) => {
         const { secureShortURL } = data;
-        const success = copyToClipboard(secureShortURL);
-        if (success) {
-          toast.success('Copied link to game');
-        } else {
-          toast.error('Something went wrong');
+
+        if (typeof navigator?.clipboard?.writeText === 'function') {
+          try {
+            await navigator.clipboard.writeText(secureShortURL);
+            toast.success('Copied link to game');
+            return;
+          } catch {}
         }
+
+        toast.error('Something went wrong');
       },
     );
   }, []);
