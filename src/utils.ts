@@ -167,9 +167,6 @@ export function magnify({
         )
       : { ...PRESET_PLAYERS };
 
-  console.log(largeAndBeautifulPlayers);
-  console.log(Object.entries(players));
-
   const largeAndBeautifulGrid = Object.entries(grid).reduce(
     (bigGrid, [cellId, ownerId]) => {
       bigGrid[cellId].ownerId = ownerId;

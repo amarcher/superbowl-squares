@@ -3,6 +3,7 @@ import Grid from './grid';
 import { LOCAL_STORAGE_KEY } from './constants';
 import { readStateFromUrl, magnify } from './utils';
 import './App.css';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   let grid;
@@ -34,6 +35,7 @@ function App() {
         initialAwayTeam={awayTeam}
         initialGameId={gameId}
       />
+      <Toaster />
     </div>
   );
 }

@@ -103,7 +103,7 @@ export default function SummaryModal({
             .map((player) => {
               return (
                 <button
-                  key={player.name}
+                  key={player.id}
                   onClick={() => {
                     if (player.name) {
                       setFocus(player.name);

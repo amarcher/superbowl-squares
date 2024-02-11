@@ -5,6 +5,9 @@ import React, {
   useMemo,
   useEffect,
 } from 'react';
+import copyToClipboard from 'copy-to-clipboard';
+import toast from 'react-hot-toast';
+
 import { useUpdateScores } from './hooks';
 import {
   getRandomDigits,
@@ -26,6 +29,7 @@ import { LOCAL_STORAGE_KEY } from './constants';
 import './Grid.css';
 import type PlayerType from './types/player';
 import SummaryModal from './summaryModal';
+import { getShortUrl } from './linkShortener';
 
 const PERIOD = ['', '1st', '2nd', '3rd', '4th'];
 
@@ -244,6 +248,20 @@ export default function Grid({
     [grid],
   );
 
+  const share = useCallback(() => {
+    getShortUrl(window.location.href).then(
+      (data: { secureShortURL: string }) => {
+        const { secureShortURL } = data;
+        const success = copyToClipboard(secureShortURL);
+        if (success) {
+          toast.success('Copied link to game');
+        } else {
+          toast.error('Something went wrong');
+        }
+      },
+    );
+  }, []);
+
   const autoPick = useCallback(() => {
     dispatch({
       type: 'auto-pick',
@@ -312,11 +330,11 @@ export default function Grid({
           ))}
         </div>
         <div>
-          <button onClick={editPlayers} className="button">
-            Players
-          </button>
           {!isLocked && (
             <>
+              <button onClick={editPlayers} className="button">
+                Players
+              </button>
               <button onClick={autoPick} className="button">
                 Auto-Pick
               </button>
@@ -326,9 +344,14 @@ export default function Grid({
             </>
           )}
           {isLocked && (
-            <button onClick={showSummary} className="button">
-              Summary
-            </button>
+            <>
+              <button onClick={share} className="button share">
+                Share
+              </button>
+              <button onClick={showSummary} className="button">
+                Summary
+              </button>
+            </>
           )}
           <button onClick={isLocked ? unlock : lock} className="button">
             {isLocked ? 'Unlock' : 'Lock'}
