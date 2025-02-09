@@ -192,7 +192,7 @@ function WinnerPossibilityView({
           nextScore={nextScore.prior}
           homeTeam={homeTeam}
           awayTeam={awayTeam}
-          isPrior={true}
+          isPrior
         />
       ) : null}
     </>
