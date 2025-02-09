@@ -22,11 +22,6 @@
   margin-right: 10px;
 }
 
-.summary-inner {
-  overflow: scroll;
-  height: 100%;
-}
-
 .sum-space-pls {
   margin-left: 50px;
 }
@@ -37,9 +32,7 @@
 
 .summary-focus {
   display: flex;
+  flex-wrap: wrap;
   margin-bottom: 20px;
-}
-
-.summary-focus > button {
-  margin-left: 10px;
+  gap: 10px;
 }
