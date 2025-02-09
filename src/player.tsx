@@ -7,6 +7,7 @@ interface Props {
   ownedSquares?: string[];
   setActive?: (id: number) => void;
   color?: string;
+  gradient?: string;
   name?: string;
   isActive?: boolean;
 }
@@ -16,6 +17,7 @@ export default function Player({
   ownedSquares,
   setActive,
   color,
+  gradient,
   name,
   isActive,
 }: Props) {
@@ -25,10 +27,10 @@ export default function Player({
 
   const style = useMemo(
     () => ({
-      backgroundColor: color,
+      background: gradient || color,
       boxShadow: isActive ? 'black 0px 0px 5pt 1pt' : 'none',
     }),
-    [color, isActive],
+    [gradient, color, isActive],
   );
 
   return (

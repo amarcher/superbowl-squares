@@ -6,6 +6,7 @@ interface Props {
   id: string;
   isCurrentWinner?: boolean;
   ownerColor?: string;
+  ownerGradient?: string;
   ownerName?: string;
   claim: (id: string) => void;
   unclaim: (id: string) => void;
@@ -15,6 +16,7 @@ export default function Square({
   id,
   isCurrentWinner,
   ownerColor,
+  ownerGradient,
   ownerName,
   claim,
   unclaim,
@@ -29,9 +31,9 @@ export default function Square({
 
   const style = useMemo(
     () => ({
-      backgroundColor: ownerColor ? ownerColor : 'white',
+      background: ownerGradient || ownerColor || 'white',
     }),
-    [ownerColor],
+    [ownerColor, ownerGradient],
   );
 
   return (
