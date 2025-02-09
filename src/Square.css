@@ -6,12 +6,13 @@
   outline: none;
   border-style: unset;
   margin: -1px 0 0 -1px;
-  border: 1px dashed black;
+  border: 1px dashed white;
   border-collapse: collapse;
+  border-radius: 4px;
 }
 
 .locked .cell {
-  border: 1px solid black;
+  border: 1px solid white;
 }
 
 .cell:focus {
@@ -21,14 +22,17 @@
 @keyframes pulse {
   0% {
     box-shadow: 0 0 0 4px rgba(82, 212, 0, 0.8);
+    transform: scale(1.02);
   }
 
-  70% {
+  50% {
     box-shadow: 0 0 0 6px rgba(82, 212, 0, 1);
+    transform: scale(1.2);
   }
 
   100% {
     box-shadow: 0 0 0 4px rgba(82, 212, 0, 0.8);
+    transform: scale(1.02);
   }
 }
 

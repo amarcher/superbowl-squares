@@ -29,6 +29,7 @@ import './Grid.css';
 import type PlayerType from './types/player';
 import SummaryModal from './summaryModal';
 import { getShortUrl } from './linkShortener';
+import gradients from './gradients';
 
 const PERIOD = ['', '1st', '2nd', '3rd', '4th'];
 
@@ -44,7 +45,7 @@ function gridReducer(state: GridType, { type, payload }: any) {
       };
     case 'unclaim':
       const currentOwnerId = state[payload.id].ownerId;
-      if (currentOwnerId !== payload.ownerId) {
+      if (String(currentOwnerId) !== String(payload.ownerId)) {
         return state;
       }
       return {
@@ -339,6 +340,9 @@ export default function Grid({
               isActive={!isLocked && parseInt(id, 10) === activePlayerId}
               name={name}
               color={color}
+              gradient={
+                gradients[typeof id === 'number' ? id : parseInt(id, 10)]
+              }
               ownedSquares={getSquaresOwnedByPlayer(id)}
               setActive={setActivePlayerId}
             />
@@ -428,11 +432,22 @@ export default function Grid({
           />
         ))}
         {FULL_IDS.map((id) => {
-          const { color, name } = players[grid[id].ownerId!] || {};
+          const {
+            color,
+            name,
+            id: playerId,
+          } = players[grid[id].ownerId!] || {};
           const square = (
             <Square
               key={id}
               ownerColor={color}
+              ownerGradient={
+                gradients[
+                  typeof playerId === 'number'
+                    ? playerId
+                    : parseInt(playerId, 10)
+                ]
+              }
               id={id}
               ownerName={name}
               claim={claim}

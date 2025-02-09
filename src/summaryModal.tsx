@@ -8,6 +8,7 @@ import Modal from './modal';
 import Grid from './types/grid';
 import Player from './types/player';
 import './summary.css';
+import gradients from './gradients';
 
 interface Props {
   onClose: () => void;
@@ -83,7 +84,10 @@ export default function SummaryModal({
           <span
             className="emphasize-name"
             style={{
-              backgroundColor: winningSquaresOwningPlayer?.color || 'white',
+              background:
+                gradients[parseInt(winningSquaresOwningPlayer?.id || '', 10)] ||
+                winningSquaresOwningPlayer?.color ||
+                'white',
             }}>
             {winningSquaresOwningPlayer?.name || 'Noone'}
           </span>{' '}
@@ -155,6 +159,11 @@ function WinnerPossibilityView({
   }
 
   const team = nextScore.scorer === 'home' ? homeTeam : awayTeam;
+  const id =
+    typeof nextScore.owner.id === 'string'
+      ? parseInt(nextScore.owner.id, 10)
+      : nextScore.owner.id;
+  const gradient = gradients[id];
 
   return (
     <>
@@ -162,7 +171,7 @@ function WinnerPossibilityView({
         <div
           className="emphasize-name"
           style={{
-            backgroundColor: nextScore.owner.color,
+            background: gradient || nextScore.owner.color,
             visibility: isPrior ? 'hidden' : 'visible',
           }}>
           {nextScore.owner.name}
