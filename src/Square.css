@@ -1,6 +1,6 @@
 .cell {
   display: block;
-  overflow: hidden;
+  overflow: visible;
   padding: 0;
   text-align: center;
   outline: none;
@@ -9,6 +9,7 @@
   border: 1px dashed white;
   border-collapse: collapse;
   border-radius: 4px;
+  position: relative;
 }
 
 .locked .cell {
@@ -38,6 +39,167 @@
 
 .winning {
   box-shadow: rgba(82, 212, 0, 1) 0px 0px 5px 5px;
-  z-index: 0;
+  z-index: 2;
   animation: pulse 2s infinite;
+  opacity: 1;
+}
+
+/* Depth 1: Next immediate scoring play - high opacity */
+.depth-1-potential {
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+
+.depth-1-potential:hover {
+  opacity: 0.95;
+}
+
+/* Depth 2: Multi-play scenario - medium opacity */
+.depth-2-potential {
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.depth-2-potential:hover {
+  opacity: 0.75;
+}
+
+/* Non-potential squares: low opacity */
+.non-potential {
+  opacity: 0.25;
+  transition: opacity 0.2s ease;
+}
+
+.non-potential:hover {
+  opacity: 0.4;
+}
+
+/* Black outline on hover for potential winners */
+.cell.hovered {
+  outline: 3px solid black;
+  outline-offset: -3px;
+  z-index: 10;
+}
+
+/* Tooltip styling */
+.scenario-tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.95);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  min-width: 200px;
+}
+
+.scenario-tooltip.tooltip-below {
+  top: 100%;
+  margin-top: 8px;
+}
+
+.scenario-tooltip.tooltip-above {
+  bottom: 100%;
+  margin-bottom: 8px;
+}
+
+.scenario-tooltip.tooltip-center {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.scenario-tooltip.tooltip-left {
+  left: 0;
+  transform: none;
+}
+
+.scenario-tooltip.tooltip-right {
+  right: 0;
+  transform: none;
+}
+
+/* Arrows for tooltip below square */
+.scenario-tooltip.tooltip-below.tooltip-center::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-bottom-color: rgba(0, 0, 0, 0.95);
+}
+
+.scenario-tooltip.tooltip-below.tooltip-left::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 20px;
+  border: 6px solid transparent;
+  border-bottom-color: rgba(0, 0, 0, 0.95);
+}
+
+.scenario-tooltip.tooltip-below.tooltip-right::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  right: 20px;
+  border: 6px solid transparent;
+  border-bottom-color: rgba(0, 0, 0, 0.95);
+}
+
+/* Arrows for tooltip above square */
+.scenario-tooltip.tooltip-above.tooltip-center::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.95);
+}
+
+.scenario-tooltip.tooltip-above.tooltip-left::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 20px;
+  border: 6px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.95);
+}
+
+.scenario-tooltip.tooltip-above.tooltip-right::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 20px;
+  border: 6px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.95);
+}
+
+.scenario-item {
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.scenario-item:last-child {
+  border-bottom: none;
+}
+
+.scenario-item.depth-1 {
+  font-weight: 600;
+}
+
+.scenario-item.depth-2 {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.scenario-more {
+  padding-top: 4px;
+  font-size: 11px;
+  opacity: 0.6;
+  text-align: center;
 }
