@@ -17,6 +17,10 @@ import {
   minify,
   FULL_IDS,
 } from './utils';
+import {
+  futureWinnerPossibilities,
+  scoreToOwnerKey,
+} from './future-utils';
 import Square from './square';
 import Player from './player';
 import Score from './score';
@@ -100,6 +104,7 @@ export default function Grid({
   const [isEditPlayersModalOpen, setIsEditPlayersModalOpen] = useState(false);
   const [isEditGameModalOpen, setIsEditGameModalOpen] = useState(false);
   const [isAutoUpdating, setIsAutoUpdating] = useState(isLocked);
+  const [showPotentialWinners, setShowPotentialWinners] = useState(false);
 
   const {
     gameState: {
@@ -241,6 +246,10 @@ export default function Grid({
     setIsAutoUpdating((wasAutoUpdating) => !wasAutoUpdating);
   }, []);
 
+  const togglePotentialWinners = useCallback(() => {
+    setShowPotentialWinners((prev) => !prev);
+  }, []);
+
   const getSquaresOwnedByPlayer = useCallback(
     (ownerId: string) => {
       return Object.keys(grid).filter((id) => grid[id].ownerId === ownerId);
@@ -286,6 +295,144 @@ export default function Grid({
       },
     });
   }, [namedPlayers]);
+
+  const scoreToOwnerIdMap = useMemo(() => {
+    const updatedScoreToOwnerIdMap = Object.keys(grid).reduce(
+      (map, id) => {
+        const square = grid[id];
+
+        // If the square has an owner, calculate the score key based on the home and away scores.
+        // Then, assign the owner ID to the score key in the map.
+        if (square.ownerId !== undefined) {
+          const homeScoreIndex = id[1];
+          const awayScoreIndex = id[0];
+          const scoreKey = scoreToOwnerKey(
+            homeScore[parseInt(homeScoreIndex, 10)],
+            awayScore[parseInt(awayScoreIndex, 10)],
+          );
+          map[scoreKey] = square.ownerId;
+        }
+
+        return map;
+      },
+      {} as Record<string, string>,
+    );
+
+    return updatedScoreToOwnerIdMap;
+  }, [awayScore, grid, homeScore]);
+
+  const scoreToOwner = useCallback(
+    (homeScoreNum: number, awayScoreNum: number) =>
+      players[
+        scoreToOwnerIdMap[
+          scoreToOwnerKey(homeScoreNum % 10, awayScoreNum % 10)
+        ]
+      ],
+    [players, scoreToOwnerIdMap],
+  );
+
+  const { depth1WinningSquareIds, depth2WinningSquareIds } = useMemo(() => {
+    if (!showPotentialWinners || !isLocked) {
+      return { depth1WinningSquareIds: new Set<string>(), depth2WinningSquareIds: new Set<string>() };
+    }
+
+    // Get depth 1 possibilities (single scoring play)
+    const depth1Possibilities = futureWinnerPossibilities(
+      -1, // all players
+      homeActualScore,
+      awayActualScore,
+      scoreToOwner,
+      1, // depth 1 for single-play scenarios
+    );
+
+    // Get all depth 2 possibilities (single and multi-play scenarios)
+    const allDepth2Possibilities = futureWinnerPossibilities(
+      -1, // all players
+      homeActualScore,
+      awayActualScore,
+      scoreToOwner,
+      2, // depth 2
+    );
+
+    const depth1SquareIds = new Set<string>();
+    const depth2SquareIds = new Set<string>();
+
+    depth1Possibilities.forEach((possibility) => {
+      const homeLastDigit = String(possibility.home % 10);
+      const awayLastDigit = String(possibility.away % 10);
+
+      const homeIndex = homeScore.findIndex((digit) => digit === homeLastDigit);
+      const awayIndex = awayScore.findIndex((digit) => digit === awayLastDigit);
+
+      if (homeIndex !== -1 && awayIndex !== -1) {
+        const squareId = `${awayIndex}${homeIndex}`;
+        depth1SquareIds.add(squareId);
+      }
+    });
+
+    // Depth 2 includes everything, so we need to separate depth 2-only squares
+    allDepth2Possibilities.forEach((possibility) => {
+      const homeLastDigit = String(possibility.home % 10);
+      const awayLastDigit = String(possibility.away % 10);
+
+      const homeIndex = homeScore.findIndex((digit) => digit === homeLastDigit);
+      const awayIndex = awayScore.findIndex((digit) => digit === awayLastDigit);
+
+      if (homeIndex !== -1 && awayIndex !== -1) {
+        const squareId = `${awayIndex}${homeIndex}`;
+        // Only add to depth2 if it's not already in depth1
+        if (!depth1SquareIds.has(squareId)) {
+          depth2SquareIds.add(squareId);
+        }
+      }
+    });
+
+    return { depth1WinningSquareIds: depth1SquareIds, depth2WinningSquareIds: depth2SquareIds };
+  }, [
+    showPotentialWinners,
+    isLocked,
+    homeActualScore,
+    awayActualScore,
+    scoreToOwner,
+    homeScore,
+    awayScore,
+  ]);
+
+  const squareToScoringScenarios = useMemo(() => {
+    const scenarioMap = new Map<string, any[]>();
+
+    if (!showPotentialWinners || !isLocked) {
+      return scenarioMap;
+    }
+
+    const allPossibilities = futureWinnerPossibilities(
+      -1,
+      homeActualScore,
+      awayActualScore,
+      scoreToOwner,
+      2
+    );
+
+    allPossibilities.forEach((possibility) => {
+      const homeLastDigit = String(possibility.home % 10);
+      const awayLastDigit = String(possibility.away % 10);
+
+      const homeIndex = homeScore.findIndex(d => d === homeLastDigit);
+      const awayIndex = awayScore.findIndex(d => d === awayLastDigit);
+
+      if (homeIndex !== -1 && awayIndex !== -1) {
+        const squareId = `${awayIndex}${homeIndex}`;
+
+        if (!scenarioMap.has(squareId)) {
+          scenarioMap.set(squareId, []);
+        }
+
+        scenarioMap.get(squareId)!.push(possibility);
+      }
+    });
+
+    return scenarioMap;
+  }, [showPotentialWinners, isLocked, homeActualScore, awayActualScore, scoreToOwner, homeScore, awayScore]);
 
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
   const showSummary = useCallback(
@@ -369,6 +516,9 @@ export default function Grid({
               </button>
               <button onClick={showSummary} className="button">
                 Summary
+              </button>
+              <button onClick={togglePotentialWinners} className="button">
+                {showPotentialWinners ? 'Hide Next' : 'Show Next'}
               </button>
             </>
           )}
@@ -461,6 +611,16 @@ export default function Grid({
                 homeScore[parseInt(id[1], 10)] ===
                   `${homeActualScore}`.charAt(`${homeActualScore}`.length - 1)
               }
+              isDepth1PotentialWinner={depth1WinningSquareIds.has(id)}
+              isDepth2PotentialWinner={depth2WinningSquareIds.has(id)}
+              isNonPotential={
+                showPotentialWinners &&
+                !depth1WinningSquareIds.has(id) &&
+                !depth2WinningSquareIds.has(id)
+              }
+              scoringScenarios={squareToScoringScenarios.get(id) || []}
+              homeTeam={homeTeam}
+              awayTeam={awayTeam}
             />
           );
           if (id[1] === '0') {
