@@ -22,7 +22,6 @@ import {
   scoreToOwnerKey,
 } from './future-utils';
 import Square from './square';
-import Player from './player';
 import Score from './score';
 import Legend from './legend';
 import EditPlayers from './editPlayers';
@@ -33,7 +32,6 @@ import './Grid.css';
 import type PlayerType from './types/player';
 import SummaryModal from './summaryModal';
 import { getShortUrl } from './linkShortener';
-import gradients from './gradients';
 
 const PERIOD = ['', '1st', '2nd', '3rd', '4th'];
 
@@ -444,58 +442,51 @@ export default function Grid({
     [setIsSummaryOpen],
   );
 
+  const homeActiveDigit = homeActualScore != null ? String(homeActualScore).slice(-1) : null;
+  const awayActiveDigit = awayActualScore != null ? String(awayActualScore).slice(-1) : null;
+
   const scores = (
     <div className="score-container">
-      <label className="score-label">
-        {awayTeam}
+      <div className="team-score-block">
+        <div className="team-label">{awayTeam || 'AWAY'}</div>
         <input
           onChange={setActualScore}
           value={awayActualScore ?? ''}
           name="away-actual-score"
-          placeholder={awayTeam}
-          className={`score-input ${awayTeam?.toLowerCase()}`}
+          placeholder="0"
+          className="score-input"
           type="number"
           min="0"
           disabled={isAutoUpdating}
         />
-      </label>
-      <div className="score-divider">-</div>
-      <label className="score-label">
-        {homeTeam}
+        {awayActualScore != null && (
+          <div className="last-digit-badge">{String(awayActualScore).slice(-1)}</div>
+        )}
+      </div>
+      <div className="score-divider">—</div>
+      <div className="team-score-block">
+        <div className="team-label">{homeTeam || 'HOME'}</div>
         <input
           onChange={setActualScore}
           value={homeActualScore ?? ''}
           name="home-actual-score"
-          placeholder={homeTeam}
-          className={`score-input ${homeTeam?.toLowerCase()}`}
+          placeholder="0"
+          className="score-input"
           type="number"
           min="0"
           disabled={isAutoUpdating}
         />
-      </label>
+        {homeActualScore != null && (
+          <div className="last-digit-badge">{String(homeActualScore).slice(-1)}</div>
+        )}
+      </div>
     </div>
   );
 
   return (
     <div className="container">
       <div className="control-container">
-        <div className="player-container">
-          {namedPlayers.map(({ id, name, color }) => (
-            <Player
-              key={id}
-              id={id}
-              isActive={!isLocked && parseInt(id, 10) === activePlayerId}
-              name={name}
-              color={color}
-              gradient={
-                gradients[typeof id === 'number' ? id : parseInt(id, 10)]
-              }
-              ownedSquares={getSquaresOwnedByPlayer(id)}
-              setActive={setActivePlayerId}
-            />
-          ))}
-        </div>
-        <div>
+        <div className="button-group">
           {!isLocked && (
             <>
               <button onClick={editPlayers} className="button">
@@ -511,7 +502,7 @@ export default function Grid({
           )}
           {isLocked && (
             <>
-              <button onClick={share} className="button share">
+              <button onClick={share} className="button primary">
                 Share
               </button>
               <button onClick={showSummary} className="button">
@@ -522,7 +513,7 @@ export default function Grid({
               </button>
             </>
           )}
-          <button onClick={isLocked ? unlock : lock} className="button">
+          <button onClick={isLocked ? unlock : lock} className={`button${isLocked ? '' : ' primary'}`}>
             {isLocked ? 'Unlock' : 'Lock'}
           </button>
           <EditPlayers
@@ -554,23 +545,24 @@ export default function Grid({
         </div>
       </div>
 
-      {scores}
-
-      <div className="time">
-        <div className="clock">{clock}</div>
-        <div className="period">{PERIOD[period] || ''}</div>
+      <div className="scoreboard">
+        {scores}
+        {(period > 0 || clock) && (
+          <div className="game-info">
+            {period > 0 && <div className="period-label">{PERIOD[period]}</div>}
+            {clock && <div className="clock-label">{clock}</div>}
+          </div>
+        )}
       </div>
 
-      <div>
-        <label className="refresh-control">
-          <input
-            type="checkbox"
-            checked={isAutoUpdating}
-            onChange={toggleIsAutoUpdating}
-          />{' '}
-          Auto-update
-        </label>
-      </div>
+      <label className="refresh-control">
+        <input
+          type="checkbox"
+          checked={isAutoUpdating}
+          onChange={toggleIsAutoUpdating}
+        />{' '}
+        Auto-update
+      </label>
 
       <div className={`grid-container${isLocked ? ' locked' : ''}`}>
         <Legend x={homeTeam} y={awayTeam} />
@@ -579,25 +571,18 @@ export default function Grid({
             key={`homeDigit_${index}`}
             digit={digit}
             className={homeTeam?.toLowerCase()}
+            isActive={digit !== '?' && digit === homeActiveDigit}
           />
         ))}
         {FULL_IDS.map((id) => {
           const {
             color,
             name,
-            id: playerId,
           } = players[grid[id].ownerId!] || {};
           const square = (
             <Square
               key={id}
               ownerColor={color}
-              ownerGradient={
-                gradients[
-                  typeof playerId === 'number'
-                    ? playerId
-                    : parseInt(playerId, 10)
-                ]
-              }
               id={id}
               ownerName={name}
               claim={claim}
@@ -628,7 +613,7 @@ export default function Grid({
             const key = `awayDigit_${digit === '?' ? id[0] : digit}`;
             return (
               <React.Fragment key={key}>
-                <Score digit={digit} className={awayTeam?.toLowerCase()} />
+                <Score digit={digit} className={awayTeam?.toLowerCase()} isActive={digit !== '?' && digit === awayActiveDigit} />
                 {square}
               </React.Fragment>
             );
@@ -636,6 +621,19 @@ export default function Grid({
 
           return square;
         })}
+      </div>
+
+      <div className="player-legend">
+        {namedPlayers.map(({ id, name, color }) => (
+          <div
+            key={id}
+            className={`legend-item${!isLocked ? ' clickable' : ''}${!isLocked && parseInt(id, 10) === activePlayerId ? ' active' : ''}`}
+            onClick={() => !isLocked && setActivePlayerId(parseInt(id, 10))}
+          >
+            <div className="legend-swatch" style={{ background: color }} />
+            <span>{name} ({getSquaresOwnedByPlayer(id).length})</span>
+          </div>
+        ))}
       </div>
     </div>
   );

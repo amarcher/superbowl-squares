@@ -9,7 +9,7 @@ interface Props {
 
 export default function Legend({ x, y }: Props) {
   return (
-    <div className="container">
+    <div className="legend-corner">
       <div className="x">
         <div className="rotate">{x}</div>
       </div>

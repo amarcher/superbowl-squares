@@ -19,14 +19,12 @@
   background-color: #fefefe;
   margin: auto;
   padding: 20px;
-  border: 1px solid #888;
-  box-shadow:
-    0 4px 8px 0 rgba(0, 0, 0, 0.2),
-    0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border: none;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   animation-name: opacityAnimation;
   animation-duration: 0.4s;
   z-index: 2;
-  border-radius: 5px;
+  border-radius: 12px;
   overflow: clip;
   display: flex;
   flex-direction: column;
@@ -60,8 +58,39 @@
 }
 
 .player-input {
-  line-height: 24px;
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 8px;
   font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.player-input:focus {
+  border-color: #111827;
+}
+
+.game-input {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 16px;
+  color: #111827;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+  outline: none;
+  cursor: pointer;
+  appearance: auto;
+}
+
+.game-input:focus {
+  border-color: #111827;
 }
 
 /* Add Animation */

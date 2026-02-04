@@ -9,7 +9,6 @@ interface Props {
   isDepth2PotentialWinner?: boolean;
   isNonPotential?: boolean;
   ownerColor?: string;
-  ownerGradient?: string;
   ownerName?: string;
   claim: (id: string) => void;
   unclaim: (id: string) => void;
@@ -25,7 +24,6 @@ export default function Square({
   isDepth2PotentialWinner,
   isNonPotential,
   ownerColor,
-  ownerGradient,
   ownerName,
   claim,
   unclaim,
@@ -81,9 +79,10 @@ export default function Square({
 
   const style = useMemo(
     () => ({
-      background: ownerGradient || ownerColor || 'white',
+      background: isCurrentWinner ? '#fef3c7' : (ownerColor || 'white'),
+      color: ownerName ? '#1f2937' : 'inherit',
     }),
-    [ownerColor, ownerGradient],
+    [ownerColor, ownerName, isCurrentWinner],
   );
 
   const hasScenarios = scoringScenarios.length > 0;

@@ -1,44 +1,44 @@
 .cell {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: visible;
   padding: 0;
   text-align: center;
   outline: none;
-  border-style: unset;
   margin: -1px 0 0 -1px;
-  border: 1px dashed white;
-  border-collapse: collapse;
-  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
   position: relative;
-}
-
-.locked .cell {
-  border: 1px solid white;
+  cursor: pointer;
+  aspect-ratio: 1;
+  transition: border-color 0.15s;
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .cell:focus {
   outline: none;
 }
 
+.cell:hover {
+  border-color: #9ca3af;
+  z-index: 5;
+}
+
 @keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 4px rgba(82, 212, 0, 0.8);
-    transform: scale(1.02);
+  0%, 100% {
+    box-shadow: 0 0 0 3px #fbbf24;
   }
 
   50% {
-    box-shadow: 0 0 0 6px rgba(82, 212, 0, 1);
-    transform: scale(1.2);
-  }
-
-  100% {
-    box-shadow: 0 0 0 4px rgba(82, 212, 0, 0.8);
-    transform: scale(1.02);
+    box-shadow: 0 0 0 4px #fbbf24, 0 0 10px rgba(251, 191, 36, 0.4);
   }
 }
 
 .winning {
-  box-shadow: rgba(82, 212, 0, 1) 0px 0px 5px 5px;
+  border: 2px solid #fbbf24 !important;
+  box-shadow: 0 0 0 3px #fbbf24;
   z-index: 2;
   animation: pulse 2s infinite;
   opacity: 1;
@@ -74,10 +74,10 @@
   opacity: 0.4;
 }
 
-/* Black outline on hover for potential winners */
+/* Outline on hover for potential winners with tooltip */
 .cell.hovered {
-  outline: 3px solid black;
-  outline-offset: -3px;
+  outline: 2px solid #111827;
+  outline-offset: -2px;
   z-index: 10;
 }
 

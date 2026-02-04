@@ -1,12 +1,13 @@
 .player {
-  min-height: 40px;
-  border-radius: 5px;
-  margin-bottom: 10px;
-  margin-right: 5px;
   flex: 1 1 auto;
-  outline: none;
+  color: #1f2937;
+  transition: transform 0.1s;
 }
 
 .player:focus {
   outline: none;
+}
+
+.player:hover {
+  transform: scale(1.02);
 }
