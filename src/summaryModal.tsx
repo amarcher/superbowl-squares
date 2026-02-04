@@ -7,8 +7,9 @@ import {
 import Modal from './modal';
 import Grid from './types/grid';
 import Player from './types/player';
+import ScoreIcon from './ScoreIcon';
 import './summary.css';
-import gradients from './gradients';
+
 
 interface Props {
   onClose: () => void;
@@ -84,10 +85,7 @@ export default function SummaryModal({
           <span
             className="emphasize-name"
             style={{
-              background:
-                gradients[parseInt(winningSquaresOwningPlayer?.id || '', 10)] ||
-                winningSquaresOwningPlayer?.color ||
-                'white',
+              borderLeft: `3px solid ${winningSquaresOwningPlayer?.color || '#e5e7eb'}`,
             }}>
             {winningSquaresOwningPlayer?.name || 'Noone'}
           </span>{' '}
@@ -97,6 +95,7 @@ export default function SummaryModal({
           focus on:{' '}
           <button
             key={'____all'}
+            className={focus === -1 ? 'active' : ''}
             onClick={() => {
               setFocus(-1);
             }}>
@@ -108,6 +107,10 @@ export default function SummaryModal({
               return (
                 <button
                   key={player.id}
+                  style={{
+                    borderLeft: `3px solid ${player.color}`,
+                    background: focus === player.name ? '#f3f4f6' : undefined,
+                  }}
                   onClick={() => {
                     if (player.name) {
                       setFocus(player.name);
@@ -159,11 +162,6 @@ function WinnerPossibilityView({
   }
 
   const team = nextScore.scorer === 'home' ? homeTeam : awayTeam;
-  const id =
-    typeof nextScore.owner.id === 'string'
-      ? parseInt(nextScore.owner.id, 10)
-      : nextScore.owner.id;
-  const gradient = gradients[id];
 
   return (
     <>
@@ -171,21 +169,23 @@ function WinnerPossibilityView({
         <div
           className="emphasize-name"
           style={{
-            background: gradient || nextScore.owner.color,
+            borderLeft: `3px solid ${nextScore.owner.color}`,
             visibility: isPrior ? 'hidden' : 'visible',
           }}>
           {nextScore.owner.name}
         </div>
         {!isPrior ? <>leads if</> : <>...after</>}
         <div className={`emphasize-name ${team.toLowerCase()}`}>{team}</div>
-        scores a <span className="action-type">{nextScore.score.name}</span>
-        <span className={`win-cond-score ${awayTeam.toLowerCase()}`}>
-          {nextScore.away}
-        </span>{' '}
-        -{' '}
-        <span className={`win-cond-score ${homeTeam.toLowerCase()}`}>
-          {nextScore.home}
-        </span>
+        scores a <ScoreIcon name={nextScore.score.name} />
+        <div className="score-pair">
+          <span className={`win-cond-score ${awayTeam.toLowerCase()}`}>
+            {nextScore.away}
+          </span>
+          –
+          <span className={`win-cond-score ${homeTeam.toLowerCase()}`}>
+            {nextScore.home}
+          </span>
+        </div>
       </div>
       {nextScore.prior ? (
         <WinnerPossibilityView

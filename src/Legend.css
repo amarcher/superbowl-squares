@@ -1,7 +1,14 @@
-.container {
+.legend-corner {
   position: relative;
-  font-size: large;
-  font-weight: bold;
+  background: #111827;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 1px solid #374151;
+  margin: -1px 0 0 -1px;
+  aspect-ratio: 1;
 }
 
 .x {

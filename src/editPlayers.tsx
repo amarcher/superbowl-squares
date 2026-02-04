@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import type Player from './types/player';
 import Modal from './modal';
-import gradients from './gradients';
+
 
 interface Props {
   setPlayers: (players: Record<string, Player>) => void;
@@ -46,12 +46,7 @@ export default function EditPlayers({
             value={player.name ?? ''}
             className="player-input"
             style={{
-              background:
-                gradients[
-                  typeof player.id === 'string'
-                    ? parseInt(player.id, 10)
-                    : player.id
-                ] || player.color,
+              background: player.color,
             }}
             onChange={setPlayer}
           />

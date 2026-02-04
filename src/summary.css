@@ -1,38 +1,147 @@
+/* Player / team name badges */
 .emphasize-name {
-  display: inline-block;
-  border: black 2px solid;
-  border-radius: 6px;
-  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+  padding: 3px 8px;
   font-weight: 600;
-  margin: 0 5px;
+  font-size: 13px;
+  margin: 0 2px;
+  color: #1f2937;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  /* borderLeft overridden via inline style for player badges */
 }
 
+/* Each scoring-scenario row */
 .win-conditional {
-  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 0;
+  font-size: 14px;
+  color: #6b7280;
 }
 
+/* Score pills (team class may override bg/color in real games) */
 .win-cond-score {
-  padding: 4px;
-  border-radius: 5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  font-weight: 600;
+  color: #374151;
 }
 
+/* Scoring-play label (touchdown, field goal, …) */
 .action-type {
-  font-weight: bold;
-  font-size: 17px;
-  margin-right: 10px;
+  font-weight: 700;
+  color: #1f2937;
 }
 
-.sum-space-pls {
-  margin-left: 50px;
-}
-
-.summary-focus {
-  margin-bottom: 10px;
-}
-
+/* Player-filter row */
 .summary-focus {
   display: flex;
   flex-wrap: wrap;
-  margin-bottom: 20px;
-  gap: 10px;
+  margin-bottom: 16px;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.summary-focus button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 2px solid #e5e7eb;
+  background: white;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  color: #111827;
+  transition: border-color 0.15s;
+}
+
+.summary-focus button:hover {
+  border-color: #111827;
+}
+
+.summary-focus button.active {
+  background: #111827;
+  color: white;
+  border-color: #111827;
+}
+
+/* Heading */
+.summary-inner h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Row separators */
+.summary-inner hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 0;
+}
+
+/* Inline SVG icon next to play label */
+.score-icon {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-right: 3px;
+  color: #1f2937;
+}
+
+/* Score pair forced onto its own line */
+.score-pair {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+/* ─── Mobile ─── */
+@media (max-width: 640px) {
+  .summary-inner h2 {
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+
+  .summary-focus {
+    margin-bottom: 10px;
+    gap: 6px;
+  }
+
+  .summary-focus button {
+    padding: 4px 10px;
+    font-size: 12px;
+  }
+
+  .emphasize-name {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+
+  .win-conditional {
+    font-size: 13px;
+    padding: 5px 0;
+    gap: 4px;
+  }
+
+  .action-type {
+    font-size: 13px;
+  }
+
+  .win-cond-score {
+    font-size: 12px;
+    padding: 1px 4px;
+  }
 }
