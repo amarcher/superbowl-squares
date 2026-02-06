@@ -8,6 +8,48 @@
   width: 100%;
 }
 
+/* Two-column responsive layout */
+.layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 1400px;
+}
+
+.grid-column {
+  order: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.sidebar-column {
+  order: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Medium and up: side-by-side layout */
+@media (min-width: 768px) {
+  .layout-wrapper {
+    flex-direction: row;
+    gap: 32px;
+    align-items: flex-start;
+  }
+
+  .grid-column {
+    flex: 0 0 auto;
+  }
+
+  .sidebar-column {
+    flex: 1;
+    min-width: 280px;
+    max-width: 400px;
+  }
+}
+
 .hidden {
   display: none;
 }

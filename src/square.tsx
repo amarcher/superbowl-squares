@@ -1,6 +1,8 @@
 import React, { useCallback, useMemo, useState, useRef, useLayoutEffect } from 'react';
 
 import './Square.css';
+import { PROBABILITY_COLORS } from './colors';
+import ScoreIcon from './ScoreIcon';
 
 interface Props {
   id: string;
@@ -9,6 +11,7 @@ interface Props {
   isDepth2PotentialWinner?: boolean;
   isNonPotential?: boolean;
   ownerColor?: string;
+  ownerTextColor?: string;
   ownerName?: string;
   claim: (id: string) => void;
   unclaim: (id: string) => void;
@@ -24,6 +27,7 @@ export default function Square({
   isDepth2PotentialWinner,
   isNonPotential,
   ownerColor,
+  ownerTextColor,
   ownerName,
   claim,
   unclaim,
@@ -80,12 +84,22 @@ export default function Square({
   const style = useMemo(
     () => ({
       background: isCurrentWinner ? '#fef3c7' : (ownerColor || 'white'),
-      color: ownerName ? '#1f2937' : 'inherit',
+      color: ownerTextColor || (ownerName ? '#1f2937' : 'inherit'),
     }),
-    [ownerColor, ownerName, isCurrentWinner],
+    [ownerColor, ownerTextColor, ownerName, isCurrentWinner],
   );
 
   const hasScenarios = scoringScenarios.length > 0;
+
+  const probabilityDotColor = useMemo(() => {
+    if (!(isDepth1PotentialWinner || isDepth2PotentialWinner) || !scoringScenarios.length) return null;
+    const maxChance = Math.max(...scoringScenarios.map((s: any) =>
+      s.prior ? s.score.chance * s.prior.score.chance : s.score.chance
+    ));
+    if (maxChance >= 0.5) return PROBABILITY_COLORS.high;
+    if (maxChance >= 0.2) return PROBABILITY_COLORS.medium;
+    return PROBABILITY_COLORS.low;
+  }, [isDepth1PotentialWinner, isDepth2PotentialWinner, scoringScenarios]);
 
   return (
     <button
@@ -96,34 +110,45 @@ export default function Square({
       onMouseEnter={() => hasScenarios && setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}>
       <div className="square">{ownerName}</div>
+      {probabilityDotColor && (
+        <div className="probability-dot" style={{ backgroundColor: probabilityDotColor }} />
+      )}
       {showTooltip && hasScenarios && (
         <div ref={tooltipRef} className={`scenario-tooltip tooltip-${tooltipPosition} tooltip-${tooltipVertical}`}>
+          <div className="tooltip-owner">{ownerName || 'Unclaimed'}</div>
           {scoringScenarios.slice(0, 5).map((scenario, i) => {
             const team = scenario.scorer === 'home' ? homeTeam : awayTeam;
-            const playName = scenario.score.name;
-            const newScore = `${scenario.away}-${scenario.home}`;
+            const resultScore = `${scenario.away}–${scenario.home}`;
 
             if (scenario.prior) {
-              // Depth 2 scenario
               const priorTeam = scenario.prior.scorer === 'home' ? homeTeam : awayTeam;
-              const priorPlay = scenario.prior.score.name;
               return (
                 <div key={i} className="scenario-item depth-2">
-                  {priorTeam} {priorPlay}, then {team} {playName} → {newScore}
-                </div>
-              );
-            } else {
-              // Depth 1 scenario
-              return (
-                <div key={i} className="scenario-item depth-1">
-                  {team} {playName} → {newScore}
+                  <ScoreIcon name={scenario.prior.score.name} iconOnly />
+                  <span className="scenario-team">{priorTeam}</span>
+                  <span className="scenario-points">+{scenario.prior.score.points}</span>
+                  <span className="scenario-arrow">→</span>
+                  <ScoreIcon name={scenario.score.name} iconOnly />
+                  <span className="scenario-team">{team}</span>
+                  <span className="scenario-points">+{scenario.score.points}</span>
+                  <span className="scenario-arrow">→</span>
+                  <span className="scenario-score">{resultScore}</span>
                 </div>
               );
             }
+            return (
+              <div key={i} className="scenario-item depth-1">
+                <ScoreIcon name={scenario.score.name} iconOnly />
+                <span className="scenario-team">{team}</span>
+                <span className="scenario-points">+{scenario.score.points}</span>
+                <span className="scenario-arrow">→</span>
+                <span className="scenario-score">{resultScore}</span>
+              </div>
+            );
           })}
           {scoringScenarios.length > 5 && (
             <div className="scenario-more">
-              +{scoringScenarios.length - 5} more...
+              +{scoringScenarios.length - 5}…
             </div>
           )}
         </div>

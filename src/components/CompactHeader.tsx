@@ -6,7 +6,7 @@ interface CompactHeaderProps {
   onSummary: () => void;
   onShowNext: () => void;
   onUnlock: () => void;
-  isLocked: boolean;
+  showPotentialWinners: boolean;
 }
 
 const CompactHeader: React.FC<CompactHeaderProps> = ({
@@ -14,7 +14,7 @@ const CompactHeader: React.FC<CompactHeaderProps> = ({
   onSummary,
   onShowNext,
   onUnlock,
-  isLocked,
+  showPotentialWinners,
 }) => {
   return (
     <div className="compact-header">
@@ -27,10 +27,10 @@ const CompactHeader: React.FC<CompactHeaderProps> = ({
           Summary
         </button>
         <button className="header-btn header-btn-primary" onClick={onShowNext}>
-          {isLocked ? 'Show Next' : 'Hide Next'}
+          {showPotentialWinners ? 'Hide Next' : 'Show Next'}
         </button>
         <button className="header-btn" onClick={onUnlock}>
-          {isLocked ? 'Unlock' : 'Lock'}
+          Unlock
         </button>
       </div>
     </div>

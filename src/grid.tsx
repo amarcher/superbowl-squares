@@ -32,6 +32,9 @@ import './Grid.css';
 import type PlayerType from './types/player';
 import SummaryModal from './summaryModal';
 import { getShortUrl } from './linkShortener';
+import WinnerDisplay from './components/WinnerDisplay';
+import CompactHeader from './components/CompactHeader';
+import { PLAYER_COLORS } from './colors';
 
 const PERIOD = ['', '1st', '2nd', '3rd', '4th'];
 
@@ -399,7 +402,7 @@ export default function Grid({
   const squareToScoringScenarios = useMemo(() => {
     const scenarioMap = new Map<string, any[]>();
 
-    if (!showPotentialWinners || !isLocked) {
+    if (!isLocked) {
       return scenarioMap;
     }
 
@@ -430,7 +433,32 @@ export default function Grid({
     });
 
     return scenarioMap;
-  }, [showPotentialWinners, isLocked, homeActualScore, awayActualScore, scoreToOwner, homeScore, awayScore]);
+  }, [isLocked, homeActualScore, awayActualScore, scoreToOwner, homeScore, awayScore]);
+
+  const currentWinner = useMemo(() => {
+    if (homeActualScore == null || awayActualScore == null) return null;
+
+    const homeLastDigit = String(homeActualScore).slice(-1);
+    const awayLastDigit = String(awayActualScore).slice(-1);
+
+    const squareId = Object.keys(grid).find((id) => {
+      return (
+        homeScore[parseInt(id[1], 10)] === homeLastDigit &&
+        awayScore[parseInt(id[0], 10)] === awayLastDigit
+      );
+    });
+
+    if (!squareId) return null;
+
+    const square = grid[squareId];
+    const owner = square.ownerId !== undefined ? players[square.ownerId] : null;
+
+    return {
+      ownerName: owner?.name || 'Unclaimed',
+      homeDigit: parseInt(homeLastDigit),
+      awayDigit: parseInt(awayLastDigit),
+    };
+  }, [homeActualScore, awayActualScore, homeScore, awayScore, grid, players]);
 
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
   const showSummary = useCallback(
@@ -485,86 +513,36 @@ export default function Grid({
 
   return (
     <div className="container">
-      <div className="control-container">
-        <div className="button-group">
-          {!isLocked && (
-            <>
-              <button onClick={editPlayers} className="button">
-                Players
-              </button>
-              <button onClick={autoPick} className="button">
-                Auto-Pick
-              </button>
-              <button onClick={editGame} className="button hidden">
-                Game
-              </button>
-            </>
-          )}
-          {isLocked && (
-            <>
-              <button onClick={share} className="button primary">
-                Share
-              </button>
-              <button onClick={showSummary} className="button">
-                Summary
-              </button>
-              <button onClick={togglePotentialWinners} className="button">
-                {showPotentialWinners ? 'Hide Next' : 'Show Next'}
-              </button>
-            </>
-          )}
-          <button onClick={isLocked ? unlock : lock} className={`button${isLocked ? '' : ' primary'}`}>
-            {isLocked ? 'Unlock' : 'Lock'}
-          </button>
-          <EditPlayers
-            isOpen={isEditPlayersModalOpen}
-            onClose={closeEditPlayersModal}
-            players={players}
-            setPlayers={setPlayers}
-          />
-          <EditGame
-            isOpen={isEditGameModalOpen}
-            onClose={closeEditGameModal}
-            gameId={gameId}
-            setGameId={setGameId}
-            games={games}
-          />
-          <SummaryModal
-            isOpen={isSummaryOpen}
-            onClose={hideSummary}
-            scores={scores}
-            homeTeam={homeTeam}
-            awayTeam={awayTeam}
-            homeActualScore={homeActualScore}
-            awayActualScore={awayActualScore}
-            grid={grid}
-            homeScore={homeScore}
-            awayScore={awayScore}
-            players={players}
-          />
-        </div>
-      </div>
+      <EditPlayers
+        isOpen={isEditPlayersModalOpen}
+        onClose={closeEditPlayersModal}
+        players={players}
+        setPlayers={setPlayers}
+      />
+      <EditGame
+        isOpen={isEditGameModalOpen}
+        onClose={closeEditGameModal}
+        gameId={gameId}
+        setGameId={setGameId}
+        games={games}
+      />
+      <SummaryModal
+        isOpen={isSummaryOpen}
+        onClose={hideSummary}
+        scores={scores}
+        homeTeam={homeTeam}
+        awayTeam={awayTeam}
+        homeActualScore={homeActualScore}
+        awayActualScore={awayActualScore}
+        grid={grid}
+        homeScore={homeScore}
+        awayScore={awayScore}
+        players={players}
+      />
 
-      <div className="scoreboard">
-        {scores}
-        {(period > 0 || clock) && (
-          <div className="game-info">
-            {period > 0 && <div className="period-label">{PERIOD[period]}</div>}
-            {clock && <div className="clock-label">{clock}</div>}
-          </div>
-        )}
-      </div>
-
-      <label className="refresh-control">
-        <input
-          type="checkbox"
-          checked={isAutoUpdating}
-          onChange={toggleIsAutoUpdating}
-        />{' '}
-        Auto-update
-      </label>
-
-      <div className={`grid-container${isLocked ? ' locked' : ''}`}>
+      <div className="layout-wrapper">
+        <div className="grid-column">
+          <div className={`grid-container${isLocked ? ' locked' : ''}`}>
         <Legend x={homeTeam} y={awayTeam} />
         {homeScore.map((digit, index) => (
           <Score
@@ -575,14 +553,16 @@ export default function Grid({
           />
         ))}
         {FULL_IDS.map((id) => {
+          const ownerId = grid[id].ownerId;
           const {
             color,
             name,
-          } = players[grid[id].ownerId!] || {};
+          } = players[ownerId!] || {};
           const square = (
             <Square
               key={id}
               ownerColor={color}
+              ownerTextColor={ownerId !== undefined ? PLAYER_COLORS[ownerId]?.text : undefined}
               id={id}
               ownerName={name}
               claim={claim}
@@ -621,19 +601,79 @@ export default function Grid({
 
           return square;
         })}
-      </div>
-
-      <div className="player-legend">
-        {namedPlayers.map(({ id, name, color }) => (
-          <div
-            key={id}
-            className={`legend-item${!isLocked ? ' clickable' : ''}${!isLocked && parseInt(id, 10) === activePlayerId ? ' active' : ''}`}
-            onClick={() => !isLocked && setActivePlayerId(parseInt(id, 10))}
-          >
-            <div className="legend-swatch" style={{ background: color }} />
-            <span>{name} ({getSquaresOwnedByPlayer(id).length})</span>
           </div>
-        ))}
+        </div>
+
+        <div className="sidebar-column">
+          {isLocked ? (
+            <CompactHeader
+              onShare={share}
+              onSummary={showSummary}
+              onShowNext={togglePotentialWinners}
+              onUnlock={unlock}
+              showPotentialWinners={showPotentialWinners}
+            />
+          ) : (
+            <div className="control-container">
+              <div className="button-group">
+                <button onClick={editPlayers} className="button">
+                  Players
+                </button>
+                <button onClick={autoPick} className="button">
+                  Auto-Pick
+                </button>
+                <button onClick={editGame} className="button hidden">
+                  Game
+                </button>
+                <button onClick={lock} className="button primary">
+                  Lock
+                </button>
+              </div>
+            </div>
+          )}
+
+          {isLocked && currentWinner && (
+            <WinnerDisplay
+              ownerName={currentWinner.ownerName}
+              homeDigit={currentWinner.homeDigit}
+              awayDigit={currentWinner.awayDigit}
+              homeTeam={homeTeam || 'HOME'}
+              awayTeam={awayTeam || 'AWAY'}
+            />
+          )}
+
+          <div className="scoreboard">
+            {scores}
+            {(period > 0 || clock) && (
+              <div className="game-info">
+                {period > 0 && <div className="period-label">{PERIOD[period]}</div>}
+                {clock && <div className="clock-label">{clock}</div>}
+              </div>
+            )}
+          </div>
+
+          <label className="refresh-control">
+            <input
+              type="checkbox"
+              checked={isAutoUpdating}
+              onChange={toggleIsAutoUpdating}
+            />{' '}
+            Auto-update
+          </label>
+
+          <div className="player-legend">
+            {namedPlayers.map(({ id, name, color }) => (
+              <div
+                key={id}
+                className={`legend-item${!isLocked ? ' clickable' : ''}${!isLocked && parseInt(id, 10) === activePlayerId ? ' active' : ''}`}
+                onClick={() => !isLocked && setActivePlayerId(parseInt(id, 10))}
+              >
+                <div className="legend-swatch" style={{ background: color }} />
+                <span>{name} ({getSquaresOwnedByPlayer(id).length})</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

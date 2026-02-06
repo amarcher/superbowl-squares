@@ -87,19 +87,18 @@ export default function SummaryModal({
             style={{
               borderLeft: `3px solid ${winningSquaresOwningPlayer?.color || '#e5e7eb'}`,
             }}>
-            {winningSquaresOwningPlayer?.name || 'Noone'}
-          </span>{' '}
-          is leading, but...
+            {winningSquaresOwningPlayer?.name || '—'}
+          </span>
+          <span className="win-leader-badge">▲</span>
         </h2>
         <div className="summary-focus">
-          focus on:{' '}
           <button
             key={'____all'}
             className={focus === -1 ? 'active' : ''}
             onClick={() => {
               setFocus(-1);
             }}>
-            All Players
+            All
           </button>
           {Object.values(players)
             .filter((player) => player.name)
@@ -148,53 +147,50 @@ interface WinnerProps {
   nextScore: FuturePossibility;
   homeTeam: string;
   awayTeam: string;
-  isPrior?: boolean;
 }
 
 function WinnerPossibilityView({
   nextScore,
   homeTeam,
   awayTeam,
-  isPrior,
 }: WinnerProps) {
   if (!nextScore.owner?.name) {
     return null;
   }
 
-  const team = nextScore.scorer === 'home' ? homeTeam : awayTeam;
+  // Flatten the play chain: prior first, then current
+  const plays: FuturePossibility[] = [];
+  if (nextScore.prior) plays.push(nextScore.prior);
+  plays.push(nextScore);
 
   return (
-    <>
-      <div className="win-conditional">
-        <div
-          className="emphasize-name"
-          style={{
-            borderLeft: `3px solid ${nextScore.owner.color}`,
-            visibility: isPrior ? 'hidden' : 'visible',
-          }}>
-          {nextScore.owner.name}
-        </div>
-        {!isPrior ? <>leads if</> : <>...after</>}
-        <div className={`emphasize-name ${team.toLowerCase()}`}>{team}</div>
-        scores a <ScoreIcon name={nextScore.score.name} />
-        <div className="score-pair">
-          <span className={`win-cond-score ${awayTeam.toLowerCase()}`}>
-            {nextScore.away}
-          </span>
-          –
-          <span className={`win-cond-score ${homeTeam.toLowerCase()}`}>
-            {nextScore.home}
-          </span>
-        </div>
+    <div className="win-conditional">
+      <div
+        className="emphasize-name"
+        style={{ borderLeft: `3px solid ${nextScore.owner.color}` }}>
+        {nextScore.owner.name}
       </div>
-      {nextScore.prior ? (
-        <WinnerPossibilityView
-          nextScore={nextScore.prior}
-          homeTeam={homeTeam}
-          awayTeam={awayTeam}
-          isPrior
-        />
-      ) : null}
-    </>
+      {plays.map((play, i) => {
+        const team = play.scorer === 'home' ? homeTeam : awayTeam;
+        return (
+          <React.Fragment key={i}>
+            {i > 0 && <span className="win-arrow">→</span>}
+            <ScoreIcon name={play.score.name} iconOnly />
+            <span className={`emphasize-name ${team.toLowerCase()}`}>{team}</span>
+            <span className="win-points">+{play.score.points}</span>
+          </React.Fragment>
+        );
+      })}
+      <span className="win-arrow">→</span>
+      <div className="score-pair">
+        <span className={`win-cond-score ${awayTeam.toLowerCase()}`}>
+          {nextScore.away}
+        </span>
+        –
+        <span className={`win-cond-score ${homeTeam.toLowerCase()}`}>
+          {nextScore.home}
+        </span>
+      </div>
+    </div>
   );
 }

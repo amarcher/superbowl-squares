@@ -46,12 +46,15 @@ const PLAYS: Record<string, { Icon: () => JSX.Element; label: string }> = {
   'safety':                         { Icon: Shield,    label: 'Safety' },
 };
 
-export default function ScoreIcon({ name }: { name: string }) {
+export default function ScoreIcon({ name, iconOnly }: { name: string; iconOnly?: boolean }) {
   const play = PLAYS[name];
   if (!play) {
-    return <span className="action-type">{name}</span>;
+    return iconOnly ? null : <span className="action-type">{name}</span>;
   }
   const { Icon, label } = play;
+  if (iconOnly) {
+    return <span className="score-icon"><Icon /></span>;
+  }
   return (
     <span className="action-type">
       <span className="score-icon"><Icon /></span>

@@ -180,6 +180,9 @@
 }
 
 .scenario-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   padding: 4px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -197,9 +200,50 @@
   opacity: 0.8;
 }
 
+/* Icons inside tooltip need to be white, not the dark summary color */
+.scenario-tooltip .score-icon {
+  color: white;
+}
+
+.tooltip-owner {
+  font-weight: 700;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.scenario-team {
+  font-weight: 600;
+}
+
+.scenario-points {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+}
+
+.scenario-arrow {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 11px;
+}
+
+.scenario-score {
+  font-weight: 600;
+  margin-left: 2px;
+}
+
 .scenario-more {
   padding-top: 4px;
   font-size: 11px;
   opacity: 0.6;
   text-align: center;
+}
+
+.probability-dot {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  pointer-events: none;
 }
