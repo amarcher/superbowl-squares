@@ -62,15 +62,42 @@
   font-weight: 500;
 }
 
+/* Wide screens: compact winner display */
+@media (min-width: 1200px) {
+  .winner-display {
+    padding: 10px 14px;
+    gap: 10px;
+    margin: 8px auto;
+  }
+
+  .winner-icon {
+    font-size: 24px;
+  }
+
+  .winner-label {
+    font-size: 10px;
+    margin-bottom: 2px;
+  }
+
+  .winner-name {
+    font-size: 18px;
+    margin-bottom: 2px;
+  }
+
+  .winner-coordinates {
+    font-size: 12px;
+  }
+}
+
 @media (max-width: 768px) {
   .winner-display {
     padding: 12px 16px;
   }
-  
+
   .winner-icon {
     font-size: 24px;
   }
-  
+
   .winner-name {
     font-size: 20px;
   }

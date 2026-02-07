@@ -83,13 +83,48 @@ export default function Square({
 
   const style = useMemo(
     () => ({
-      background: isCurrentWinner ? '#fef3c7' : (ownerColor || 'white'),
+      background: ownerColor || 'white',
       color: ownerTextColor || (ownerName ? '#1f2937' : 'inherit'),
     }),
-    [ownerColor, ownerTextColor, ownerName, isCurrentWinner],
+    [ownerColor, ownerTextColor, ownerName],
   );
 
   const hasScenarios = scoringScenarios.length > 0;
+
+  // Compress scenarios that are inverses (same plays, opposite order)
+  const compressedScenarios = useMemo(() => {
+    if (!scoringScenarios.length) return [];
+
+    const seen = new Map<string, { scenario: any; isSymmetric: boolean }>();
+
+    scoringScenarios.forEach((scenario: any) => {
+      if (scenario.prior) {
+        // For depth-2: create keys for both orderings
+        const play1 = `${scenario.prior.scorer}:${scenario.prior.score.name}:${scenario.prior.score.points}`;
+        const play2 = `${scenario.scorer}:${scenario.score.name}:${scenario.score.points}`;
+        const resultKey = `${scenario.away}-${scenario.home}`;
+
+        // Canonical key: sorted plays + result
+        const sortedPlays = [play1, play2].sort().join('|');
+        const canonicalKey = `${sortedPlays}:${resultKey}`;
+
+        if (seen.has(canonicalKey)) {
+          // Mark as symmetric (has inverse)
+          seen.get(canonicalKey)!.isSymmetric = true;
+        } else {
+          seen.set(canonicalKey, { scenario, isSymmetric: false });
+        }
+      } else {
+        // Depth-1 scenarios: unique by scorer + score type + result
+        const key = `d1:${scenario.scorer}:${scenario.score.name}:${scenario.score.points}:${scenario.away}-${scenario.home}`;
+        if (!seen.has(key)) {
+          seen.set(key, { scenario, isSymmetric: false });
+        }
+      }
+    });
+
+    return Array.from(seen.values());
+  }, [scoringScenarios]);
 
   const probabilityDotColor = useMemo(() => {
     if (!(isDepth1PotentialWinner || isDepth2PotentialWinner) || !scoringScenarios.length) return null;
@@ -107,48 +142,56 @@ export default function Square({
       onClick={onClick}
       style={style}
       className={`cell${isCurrentWinner ? ' winning' : ''}${isDepth1PotentialWinner ? ' depth-1-potential' : ''}${isDepth2PotentialWinner ? ' depth-2-potential' : ''}${isNonPotential ? ' non-potential' : ''}${showTooltip ? ' hovered' : ''}`}
-      onMouseEnter={() => hasScenarios && setShowTooltip(true)}
+      onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}>
       <div className="square">{ownerName}</div>
       {probabilityDotColor && (
         <div className="probability-dot" style={{ backgroundColor: probabilityDotColor }} />
       )}
-      {showTooltip && hasScenarios && (
+      {showTooltip && (
         <div ref={tooltipRef} className={`scenario-tooltip tooltip-${tooltipPosition} tooltip-${tooltipVertical}`}>
           <div className="tooltip-owner">{ownerName || 'Unclaimed'}</div>
-          {scoringScenarios.slice(0, 5).map((scenario, i) => {
-            const team = scenario.scorer === 'home' ? homeTeam : awayTeam;
-            const resultScore = `${scenario.away}–${scenario.home}`;
+          {hasScenarios ? (
+            <>
+              {compressedScenarios.slice(0, 5).map(({ scenario, isSymmetric }, i) => {
+                const team = scenario.scorer === 'home' ? homeTeam : awayTeam;
+                const resultScore = `${scenario.away}–${scenario.home}`;
 
-            if (scenario.prior) {
-              const priorTeam = scenario.prior.scorer === 'home' ? homeTeam : awayTeam;
-              return (
-                <div key={i} className="scenario-item depth-2">
-                  <ScoreIcon name={scenario.prior.score.name} iconOnly />
-                  <span className="scenario-team">{priorTeam}</span>
-                  <span className="scenario-points">+{scenario.prior.score.points}</span>
-                  <span className="scenario-arrow">→</span>
-                  <ScoreIcon name={scenario.score.name} iconOnly />
-                  <span className="scenario-team">{team}</span>
-                  <span className="scenario-points">+{scenario.score.points}</span>
-                  <span className="scenario-arrow">→</span>
-                  <span className="scenario-score">{resultScore}</span>
+                if (scenario.prior) {
+                  const priorTeam = scenario.prior.scorer === 'home' ? homeTeam : awayTeam;
+                  return (
+                    <div key={i} className="scenario-item depth-2">
+                      <ScoreIcon name={scenario.prior.score.name} iconOnly />
+                      <span className="scenario-team">{priorTeam}</span>
+                      <span className="scenario-points">+{scenario.prior.score.points}</span>
+                      <span className="scenario-arrow">{isSymmetric ? '⇄' : '→'}</span>
+                      <ScoreIcon name={scenario.score.name} iconOnly />
+                      <span className="scenario-team">{team}</span>
+                      <span className="scenario-points">+{scenario.score.points}</span>
+                      <span className="scenario-arrow">→</span>
+                      <span className="scenario-score">{resultScore}</span>
+                    </div>
+                  );
+                }
+                return (
+                  <div key={i} className="scenario-item depth-1">
+                    <ScoreIcon name={scenario.score.name} iconOnly />
+                    <span className="scenario-team">{team}</span>
+                    <span className="scenario-points">+{scenario.score.points}</span>
+                    <span className="scenario-arrow">→</span>
+                    <span className="scenario-score">{resultScore}</span>
+                  </div>
+                );
+              })}
+              {compressedScenarios.length > 5 && (
+                <div className="scenario-more">
+                  +{compressedScenarios.length - 5}…
                 </div>
-              );
-            }
-            return (
-              <div key={i} className="scenario-item depth-1">
-                <ScoreIcon name={scenario.score.name} iconOnly />
-                <span className="scenario-team">{team}</span>
-                <span className="scenario-points">+{scenario.score.points}</span>
-                <span className="scenario-arrow">→</span>
-                <span className="scenario-score">{resultScore}</span>
-              </div>
-            );
-          })}
-          {scoringScenarios.length > 5 && (
-            <div className="scenario-more">
-              +{scoringScenarios.length - 5}…
+              )}
+            </>
+          ) : (
+            <div className="scenario-item no-scenarios">
+              <div className="shrug-icon">🤷</div>
             </div>
           )}
         </div>

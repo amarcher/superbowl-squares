@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import toast from 'react-hot-toast';
 
-import { useUpdateScores } from './hooks';
+import { useUpdateScores, REFRESH_INTERVAL } from './hooks';
 import {
   getRandomDigits,
   PRESET_PLAYERS,
@@ -117,14 +117,67 @@ export default function Grid({
       awayTeam,
       home: homeActualScore,
       away: awayActualScore,
+      startDate,
     },
     setGameState,
+    manualRefresh,
+    lastRefresh,
   } = useUpdateScores({
     shouldUpdate: isAutoUpdating,
     initialHomeTeam,
     initialAwayTeam,
     initialGameId,
   });
+
+  // Countdown to game start
+  const [countdown, setCountdown] = useState<string | null>(null);
+  useEffect(() => {
+    if (!startDate || period > 0) {
+      setCountdown(null);
+      return;
+    }
+
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+      const gameStart = new Date(startDate).getTime();
+      const diff = gameStart - now;
+
+      if (diff <= 0) {
+        setCountdown(null);
+        return;
+      }
+
+      const totalHours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      setCountdown(`${totalHours}:${pad(minutes)}:${pad(seconds)}`);
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [startDate, period]);
+
+  // Countdown to next auto-refresh
+  const [refreshCountdown, setRefreshCountdown] = useState<number>(REFRESH_INTERVAL / 1000);
+  useEffect(() => {
+    if (!isAutoUpdating) {
+      setRefreshCountdown(REFRESH_INTERVAL / 1000);
+      return;
+    }
+
+    const updateRefreshCountdown = () => {
+      const elapsed = Date.now() - lastRefresh;
+      const remaining = Math.max(0, Math.ceil((REFRESH_INTERVAL - elapsed) / 1000));
+      setRefreshCountdown(remaining);
+    };
+
+    updateRefreshCountdown();
+    const interval = setInterval(updateRefreshCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [isAutoUpdating, lastRefresh]);
 
   const setGameId = useCallback(
     (gameId?: string) => {
@@ -497,9 +550,6 @@ export default function Grid({
           min="0"
           disabled={isAutoUpdating}
         />
-        {awayActualScore != null && (
-          <div className="last-digit-badge">{String(awayActualScore).slice(-1)}</div>
-        )}
       </div>
       <div className="score-divider">—</div>
       <div className="team-score-block">
@@ -514,9 +564,6 @@ export default function Grid({
           min="0"
           disabled={isAutoUpdating}
         />
-        {homeActualScore != null && (
-          <div className="last-digit-badge">{String(homeActualScore).slice(-1)}</div>
-        )}
       </div>
     </div>
   );
@@ -654,35 +701,49 @@ export default function Grid({
 
           <div className="scoreboard">
             {scores}
-            {(period > 0 || clock) && (
+            {(period > 0 || clock || countdown) && (
               <div className="game-info">
                 {period > 0 && <div className="period-label">{PERIOD[period]}</div>}
-                {clock && <div className="clock-label">{clock}</div>}
+                {period > 0 && clock && <div className="clock-label">{clock}</div>}
+                {!period && countdown && (
+                  <>
+                    <div className="period-label">Starts in:</div>
+                    <div className="clock-label">{countdown}</div>
+                  </>
+                )}
               </div>
             )}
           </div>
 
-          <label className="refresh-control">
-            <input
-              type="checkbox"
-              checked={isAutoUpdating}
-              onChange={toggleIsAutoUpdating}
-            />{' '}
-            Auto-update
-          </label>
-
-          <div className="player-legend">
-            {namedPlayers.map(({ id, name, color }) => (
-              <div
-                key={id}
-                className={`legend-item${!isLocked ? ' clickable' : ''}${!isLocked && parseInt(id, 10) === activePlayerId ? ' active' : ''}`}
-                onClick={() => !isLocked && setActivePlayerId(parseInt(id, 10))}
-              >
-                <div className="legend-swatch" style={{ background: color }} />
-                <span>{name} ({getSquaresOwnedByPlayer(id).length})</span>
-              </div>
-            ))}
+          <div className="refresh-control">
+            <label>
+              <input
+                type="checkbox"
+                checked={isAutoUpdating}
+                onChange={toggleIsAutoUpdating}
+              />{' '}
+              Auto-update
+            </label>
+            {isAutoUpdating && <span className="refresh-countdown">({refreshCountdown}s)</span>}
+            <button className="refresh-btn" onClick={manualRefresh} type="button">
+              Refresh
+            </button>
           </div>
+
+          {!isLocked && (
+            <div className="player-legend">
+              {namedPlayers.map(({ id, name, color }) => (
+                <div
+                  key={id}
+                  className={`legend-item clickable${parseInt(id, 10) === activePlayerId ? ' active' : ''}`}
+                  onClick={() => setActivePlayerId(parseInt(id, 10))}
+                >
+                  <div className="legend-swatch" style={{ background: color }} />
+                  <span>{name} ({getSquaresOwnedByPlayer(id).length})</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -64,11 +64,16 @@
   margin-bottom: 8px;
   font-size: 18px;
   font-weight: 600;
-  color: #1f2937;
+  /* color set via inline style for A11Y contrast */
   border: 1px solid transparent;
   border-radius: 6px;
   outline: none;
   box-sizing: border-box;
+}
+
+.player-input::placeholder {
+  color: inherit;
+  opacity: 0.6;
 }
 
 .player-input:focus {

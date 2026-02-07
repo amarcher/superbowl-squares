@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import type Player from './types/player';
 import Modal from './modal';
+import { PLAYER_COLORS } from './colors';
 
 
 interface Props {
@@ -47,6 +48,7 @@ export default function EditPlayers({
             className="player-input"
             style={{
               background: player.color,
+              color: PLAYER_COLORS[id]?.text || '#ffffff',
             }}
             onChange={setPlayer}
           />

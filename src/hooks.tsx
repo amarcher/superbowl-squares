@@ -5,7 +5,7 @@ import 'whatwg-fetch';
 
 const ESPN_ENDPOINT =
   'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
-const INTERVAL = 30 * 1000;
+export const REFRESH_INTERVAL = 30 * 1000;
 
 function get(endpoint: string) {
   return fetch(endpoint).then((response) => response.json());
@@ -20,6 +20,7 @@ export const INITIAL_GAME_TEMPLATE = {
   awayTeam: 'AWAY',
   games: [],
   gameId: undefined,
+  startDate: undefined as string | undefined,
 };
 
 function getGameFromEvent(event: Event) {
@@ -28,6 +29,7 @@ function getGameFromEvent(event: Event) {
   const game = {
     ...INITIAL_GAME_TEMPLATE,
     gameId: event.id,
+    startDate: event.date,
   };
   const competition = event?.competitions?.[0];
   const { competitors, status } = competition || {};
@@ -100,7 +102,9 @@ export function useUpdateScores({
     gameId: initialGameId,
   });
 
-  const callback = useCallback(
+  const [lastRefresh, setLastRefresh] = useState<number>(Date.now());
+
+  const fetchScores = useCallback(
     () =>
       getScores(gameState.gameId).then((payload) => {
         const games = payload?.events?.map(getGameFromEvent);
@@ -113,6 +117,7 @@ export function useUpdateScores({
           ...game,
           games,
         }));
+        setLastRefresh(Date.now());
 
         return {
           ...game,
@@ -122,9 +127,13 @@ export function useUpdateScores({
     [gameState.gameId],
   );
 
-  const intervalId = useInterval(callback, shouldUpdate ? INTERVAL : null);
+  const intervalId = useInterval(fetchScores, shouldUpdate ? REFRESH_INTERVAL : null);
 
   if (!shouldUpdate && intervalId) clearInterval(intervalId);
 
-  return useMemo(() => ({ gameState, setGameState }), [gameState]);
+  const manualRefresh = useCallback(() => {
+    fetchScores();
+  }, [fetchScores]);
+
+  return useMemo(() => ({ gameState, setGameState, manualRefresh, lastRefresh }), [gameState, manualRefresh, lastRefresh]);
 }

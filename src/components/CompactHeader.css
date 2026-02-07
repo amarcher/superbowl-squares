@@ -1,19 +1,13 @@
 .compact-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   padding: 16px 24px;
-  background: white;
-  border-bottom: 2px solid #e5e7eb;
   margin-bottom: 20px;
 }
 
 .compact-header-title {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: #1f2937;
-  margin: 0;
+  display: none;
 }
 
 .compact-header-actions {
@@ -55,6 +49,26 @@
   border-color: #374151;
 }
 
+/* Wide screens: compact buttons in 2x2 grid */
+@media (min-width: 1200px) {
+  .compact-header {
+    padding: 8px;
+    margin-bottom: 12px;
+  }
+
+  .compact-header-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .header-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}
+
 @media (max-width: 767px) {
   .compact-header {
     flex-direction: column;
@@ -63,9 +77,15 @@
     margin-bottom: 12px;
   }
 
-  /* Hide title at small screens to save space */
+  /* Show small title on mobile */
   .compact-header-title {
-    display: none;
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #9ca3af;
+    margin: 0 0 4px 0;
+    text-transform: uppercase;
   }
 
   .compact-header-actions {
