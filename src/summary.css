@@ -100,12 +100,27 @@
   color: #1f2937;
 }
 
-/* Score pair forced onto its own line */
+/* Score pair inline with the rest of the row */
 .score-pair {
   display: flex;
   align-items: center;
   gap: 4px;
-  width: 100%;
+}
+
+.win-arrow {
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.win-points {
+  font-weight: 600;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.win-leader-badge {
+  color: #16a34a;
+  font-size: 14px;
 }
 
 /* ─── Mobile ─── */

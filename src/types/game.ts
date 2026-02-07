@@ -6,5 +6,6 @@ export default interface Game {
   period?: number;
   homeTeam?: string;
   awayTeam?: string;
+  startDate?: string;
   games: Omit<Game, 'games'>;
 }

@@ -1,6 +1,6 @@
 .modal-background {
   position: fixed;
-  z-index: 1;
+  z-index: 1000;
   left: 0;
   top: 0;
   width: 100%;
@@ -23,7 +23,7 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   animation-name: opacityAnimation;
   animation-duration: 0.4s;
-  z-index: 2;
+  z-index: 1001;
   border-radius: 12px;
   overflow: clip;
   display: flex;
@@ -64,11 +64,16 @@
   margin-bottom: 8px;
   font-size: 18px;
   font-weight: 600;
-  color: #1f2937;
+  /* color set via inline style for A11Y contrast */
   border: 1px solid transparent;
   border-radius: 6px;
   outline: none;
   box-sizing: border-box;
+}
+
+.player-input::placeholder {
+  color: inherit;
+  opacity: 0.6;
 }
 
 .player-input:focus {

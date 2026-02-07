@@ -6,7 +6,197 @@
   font-size: 16px;
   background: #111827;
   color: #ffffff;
-  margin: -1px 0 0 -1px;
   border: 1px solid #374151;
+  border-radius: 6px;
   aspect-ratio: 1;
+  transition: box-shadow 0.3s ease;
 }
+
+/*
+ * Cozy ember glow - GPU-optimized with smooth interpolation
+ * Uses will-change hints and avoids expensive filter operations
+ */
+
+/* Primary glow - all keyframes must have exactly 4 shadows for smooth interpolation */
+@keyframes ember-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 6px 1px var(--glow-color),
+      0 -1px 10px 2px var(--glow-color),
+      0 0 0 0 var(--glow-color),
+      inset 0 0 6px 1px var(--glow-color);
+  }
+  12.5%, 87.5% {
+    box-shadow:
+      0 0 7px 1.5px var(--glow-color),
+      0 -2px 12px 3px var(--glow-color),
+      0 -3px 14px 4px var(--glow-color),
+      inset 0 0 7px 1.25px var(--glow-color);
+  }
+  25%, 75% {
+    box-shadow:
+      0 0 8px 2px var(--glow-color),
+      0 -3px 14px 4px var(--glow-color),
+      0 -5px 18px 5px var(--glow-color),
+      inset 0 0 8px 1.5px var(--glow-color);
+  }
+  37.5%, 62.5% {
+    box-shadow:
+      0 0 9px 2.5px var(--glow-color),
+      0 -4px 15px 4.5px var(--glow-color),
+      0 -6px 19px 5.5px var(--glow-color),
+      inset 0 0 9px 1.75px var(--glow-color);
+  }
+  50% {
+    box-shadow:
+      0 0 10px 3px var(--glow-color),
+      0 -4px 16px 5px var(--glow-color),
+      0 -7px 20px 6px var(--glow-color),
+      inset 0 0 10px 2px var(--glow-color);
+  }
+}
+
+/* Halo uses only transform & opacity (GPU-accelerated) */
+@keyframes halo-breathe {
+  0%, 100% {
+    opacity: 0.35;
+    transform: translateY(0) scale(1) translateZ(0);
+  }
+  50% {
+    opacity: 0.55;
+    transform: translateY(-2px) scale(1.03) translateZ(0);
+  }
+}
+
+/* Team-specific flame colors - cozy ember glow effect */
+/* All team flames need high z-index to appear above adjacent squares */
+.score.sf,
+.score.kc,
+.score.bal,
+.score.phi,
+.score.buf,
+.score.cin,
+.score.dal,
+.score.gb,
+.score.tb,
+.score.det,
+.score.lar,
+.score.ne,
+.score.sea,
+.score.pit,
+.score.cle,
+.score.mia,
+.score.nyj,
+.score.hou,
+.score.ind,
+.score.jax,
+.score.ten,
+.score.den,
+.score.lv,
+.score.lac,
+.score.chi,
+.score.min,
+.score.nyg,
+.score.wsh,
+.score.atl,
+.score.car,
+.score.no,
+.score.ari {
+  position: relative;
+  z-index: 100;
+  /* Single smooth animation - no competing timings */
+  animation: ember-glow 5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  border-width: 2px;
+  /* GPU optimization hints */
+  will-change: box-shadow;
+  transform: translateZ(0);
+}
+
+/* Outer halo pseudo-element for depth - GPU accelerated */
+.score.sf::before,
+.score.kc::before,
+.score.bal::before,
+.score.phi::before,
+.score.buf::before,
+.score.cin::before,
+.score.dal::before,
+.score.gb::before,
+.score.tb::before,
+.score.det::before,
+.score.lar::before,
+.score.ne::before,
+.score.sea::before,
+.score.pit::before,
+.score.cle::before,
+.score.mia::before,
+.score.nyj::before,
+.score.hou::before,
+.score.ind::before,
+.score.jax::before,
+.score.ten::before,
+.score.den::before,
+.score.lv::before,
+.score.lac::before,
+.score.chi::before,
+.score.min::before,
+.score.nyg::before,
+.score.wsh::before,
+.score.atl::before,
+.score.car::before,
+.score.no::before,
+.score.ari::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 6px;
+  background: radial-gradient(
+    ellipse at center bottom,
+    var(--glow-color) 0%,
+    transparent 60%
+  );
+  mix-blend-mode: screen;
+  /* Offset timing from main glow for organic feel */
+  animation: halo-breathe 6s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  animation-delay: -1.5s;
+  pointer-events: none;
+  z-index: -1;
+  /* GPU layer promotion */
+  will-change: transform, opacity;
+}
+
+.score.sf {
+  --glow-color: #ff3333;
+  border-color: #ff3333;
+}
+
+.score.kc { --glow-color: #ff4d5c; border-color: #ff4d5c; }
+.score.bal { --glow-color: #6b4dff; border-color: #6b4dff; }
+.score.phi { --glow-color: #00c9d7; border-color: #00c9d7; }
+.score.buf { --glow-color: #0066ff; border-color: #0066ff; }
+.score.cin { --glow-color: #ff6b2c; border-color: #ff6b2c; }
+.score.dal { --glow-color: #0066ff; border-color: #0066ff; }
+.score.gb { --glow-color: #2dff2d; border-color: #2dff2d; }
+.score.tb { --glow-color: #ff3333; border-color: #ff3333; }
+.score.det { --glow-color: #00a8ff; border-color: #00a8ff; }
+.score.lar { --glow-color: #ffbb00; border-color: #ffbb00; }
+.score.ne { --glow-color: #ff3366; border-color: #ff3366; }
+.score.sea { --glow-color: #69ff28; border-color: #69ff28; }
+.score.pit { --glow-color: #ffd700; border-color: #ffd700; }
+.score.cle { --glow-color: #ff6600; border-color: #ff6600; }
+.score.mia { --glow-color: #00d4dd; border-color: #00d4dd; }
+.score.nyj { --glow-color: #1aff7a; border-color: #1aff7a; }
+.score.hou { --glow-color: #ff3366; border-color: #ff3366; }
+.score.ind { --glow-color: #3399ff; border-color: #3399ff; }
+.score.jax { --glow-color: #ffd700; border-color: #ffd700; }
+.score.ten { --glow-color: #66b3ff; border-color: #66b3ff; }
+.score.den { --glow-color: #ff6600; border-color: #ff6600; }
+.score.lv { --glow-color: #d4d4d4; border-color: #d4d4d4; }
+.score.lac { --glow-color: #ffdd00; border-color: #ffdd00; }
+.score.chi { --glow-color: #ff6633; border-color: #ff6633; }
+.score.min { --glow-color: #a666ff; border-color: #a666ff; }
+.score.nyg { --glow-color: #4d79ff; border-color: #4d79ff; }
+.score.wsh { --glow-color: #ff6699; border-color: #ff6699; }
+.score.atl { --glow-color: #ff3366; border-color: #ff3366; }
+.score.car { --glow-color: #33bbff; border-color: #33bbff; }
+.score.no { --glow-color: #ffd966; border-color: #ffd966; }
+.score.ari { --glow-color: #ff4466; border-color: #ff4466; }

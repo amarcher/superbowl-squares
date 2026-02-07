@@ -6,13 +6,12 @@
   padding: 0;
   text-align: center;
   outline: none;
-  margin: -1px 0 0 -1px;
   border: 1px solid #e5e7eb;
-  border-radius: 0;
+  border-radius: 6px;
   position: relative;
   cursor: pointer;
   aspect-ratio: 1;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, transform 0.1s;
   font-size: 11px;
   font-weight: 600;
 }
@@ -26,22 +25,38 @@
   z-index: 5;
 }
 
-@keyframes pulse {
-  0%, 100% {
-    box-shadow: 0 0 0 3px #fbbf24;
-  }
-
-  50% {
-    box-shadow: 0 0 0 4px #fbbf24, 0 0 10px rgba(251, 191, 36, 0.4);
-  }
+/* Gold ember glow for winning square - uses same animation as score headers */
+.winning {
+  --glow-color: #fbbf24;
+  border: 2px solid #fbbf24 !important;
+  position: relative;
+  z-index: 100;
+  animation: ember-glow 5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  opacity: 1;
+  /* GPU optimization hints */
+  will-change: box-shadow;
+  transform: translateZ(0);
 }
 
-.winning {
-  border: 2px solid #fbbf24 !important;
-  box-shadow: 0 0 0 3px #fbbf24;
-  z-index: 2;
-  animation: pulse 2s infinite;
-  opacity: 1;
+/* Outer halo pseudo-element for depth - GPU accelerated */
+.winning::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 6px;
+  background: radial-gradient(
+    ellipse at center bottom,
+    var(--glow-color) 0%,
+    transparent 60%
+  );
+  mix-blend-mode: screen;
+  /* Offset timing from main glow for organic feel */
+  animation: halo-breathe 6s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  animation-delay: -1.5s;
+  pointer-events: none;
+  z-index: -1;
+  /* GPU layer promotion */
+  will-change: transform, opacity;
 }
 
 /* Depth 1: Next immediate scoring play - high opacity */
@@ -180,6 +195,9 @@
 }
 
 .scenario-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   padding: 4px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -197,9 +215,61 @@
   opacity: 0.8;
 }
 
+/* Icons inside tooltip need to be white, not the dark summary color */
+.scenario-tooltip .score-icon {
+  color: white;
+}
+
+.tooltip-owner {
+  font-weight: 700;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.scenario-team {
+  font-weight: 600;
+}
+
+.scenario-points {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+}
+
+.scenario-arrow {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 11px;
+}
+
+.scenario-score {
+  font-weight: 600;
+  margin-left: 2px;
+}
+
 .scenario-more {
   padding-top: 4px;
   font-size: 11px;
   opacity: 0.6;
   text-align: center;
+}
+
+.no-scenarios {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.shrug-icon {
+  font-size: 28px;
+}
+
+.probability-dot {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  pointer-events: none;
 }
