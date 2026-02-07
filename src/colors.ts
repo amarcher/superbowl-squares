@@ -1,19 +1,19 @@
-// New soft player colors for better readability
+// Bold saturated colors for NFL/sports aesthetic
 export const PLAYER_COLORS: Record<string, { bg: string; text: string }> = {
-  '0': { bg: '#86efac', text: '#166534' }, // Clint - soft green
-  '1': { bg: '#fca5a5', text: '#991b1b' }, // Mike - soft red
-  '2': { bg: '#a5b4fc', text: '#3730a3' }, // Andy - soft blue
-  '3': { bg: '#67e8f9', text: '#164e63' }, // Matt - soft cyan
-  '4': { bg: '#fde047', text: '#854d0e' }, // James - soft yellow
+  '0': { bg: '#166534', text: '#ffffff' }, // Forest green
+  '1': { bg: '#dc2626', text: '#ffffff' }, // Crimson red
+  '2': { bg: '#1e3a8a', text: '#ffffff' }, // Navy blue
+  '3': { bg: '#ea580c', text: '#ffffff' }, // Burnt orange
+  '4': { bg: '#7c3aed', text: '#ffffff' }, // Royal purple
 };
 
 // Legacy color mapping for backward compatibility
 export const PLAYER_COLOR_MAP: Record<string, string> = {
-  '0': '#86efac',
-  '1': '#fca5a5',
-  '2': '#a5b4fc',
-  '3': '#67e8f9',
-  '4': '#fde047',
+  '0': '#166534',
+  '1': '#dc2626',
+  '2': '#1e3a8a',
+  '3': '#ea580c',
+  '4': '#7c3aed',
 };
 
 // Axis styling colors
@@ -36,13 +36,13 @@ export const PROBABILITY_COLORS = {
   low: '#ef4444',     // red
 };
 
-// Legacy colors array - updated first 5 to match new palette
+// Legacy colors array - updated first 5 to match bold saturated palette
 const colors = [
-  '#86efac', // Clint
-  '#fca5a5', // Mike
-  '#a5b4fc', // Andy
-  '#67e8f9', // Matt
-  '#fde047', // James
+  '#166534', // Forest green
+  '#dc2626', // Crimson red
+  '#1e3a8a', // Navy blue
+  '#ea580c', // Burnt orange
+  '#7c3aed', // Royal purple
   '#d40707',
   '#ccccff',
   '#FF9AA2',

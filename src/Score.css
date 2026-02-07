@@ -9,4 +9,149 @@
   margin: -1px 0 0 -1px;
   border: 1px solid #374151;
   aspect-ratio: 1;
+  transition: box-shadow 0.3s ease;
 }
+
+/* Flame animation keyframes - ultra-smooth vertical flames with fine-grained tweening */
+@keyframes flame-glow {
+  0% {
+    box-shadow: 0 -2px 8px 2px var(--glow-color), 0 -4px 15px 4px var(--glow-color), inset 0 2px 10px 1px var(--glow-color);
+  }
+  5% {
+    box-shadow: 0 -2.5px 9px 2.5px var(--glow-color), 0 -5px 17px 5px var(--glow-color), 0 -7px 24px 7px var(--glow-color), inset 0 2px 12px 1.5px var(--glow-color);
+  }
+  10% {
+    box-shadow: 0 -3px 10px 3px var(--glow-color), 0 -6px 20px 6px var(--glow-color), 0 -9px 28px 8px var(--glow-color), inset 0 2px 14px 2px var(--glow-color);
+  }
+  15% {
+    box-shadow: 0 -3.5px 11px 3.5px var(--glow-color), 0 -7px 22px 6.5px var(--glow-color), 0 -10px 31px 9px var(--glow-color), inset 0 2px 16px 2.5px var(--glow-color);
+  }
+  20% {
+    box-shadow: 0 -4px 12px 4px var(--glow-color), 0 -8px 24px 7px var(--glow-color), 0 -12px 34px 10px var(--glow-color), inset 0 2px 18px 3px var(--glow-color);
+  }
+  25% {
+    box-shadow: 0 -4.5px 13px 4.5px var(--glow-color), 0 -9px 25px 8px var(--glow-color), 0 -13px 36px 11px var(--glow-color), inset 0 2px 20px 3.5px var(--glow-color);
+  }
+  30% {
+    box-shadow: 0 -5px 14px 5px var(--glow-color), 0 -10px 26px 9px var(--glow-color), 0 -15px 38px 12px var(--glow-color), inset 0 2px 22px 4px var(--glow-color);
+  }
+  35% {
+    box-shadow: 0 -5.5px 14.5px 5.5px var(--glow-color), 0 -10.5px 27px 9.5px var(--glow-color), 0 -15.5px 39px 12.5px var(--glow-color), inset 0 2px 23px 4.5px var(--glow-color);
+  }
+  40% {
+    box-shadow: 0 -6px 15px 6px var(--glow-color), 0 -11px 28px 10px var(--glow-color), 0 -16px 40px 13px var(--glow-color), inset 0 2px 24px 4px var(--glow-color);
+  }
+  45% {
+    box-shadow: 0 -6.5px 15.5px 6px var(--glow-color), 0 -11.5px 29px 10.5px var(--glow-color), 0 -17px 41px 13.5px var(--glow-color), inset 0 2px 25px 4.5px var(--glow-color);
+  }
+  50% {
+    box-shadow: 0 -7px 16px 6px var(--glow-color), 0 -12px 30px 11px var(--glow-color), 0 -18px 42px 14px var(--glow-color), inset 0 2px 26px 5px var(--glow-color);
+  }
+  55% {
+    box-shadow: 0 -6.5px 15.5px 6px var(--glow-color), 0 -11.5px 29px 10.5px var(--glow-color), 0 -17px 41px 13.5px var(--glow-color), inset 0 2px 25px 4.5px var(--glow-color);
+  }
+  60% {
+    box-shadow: 0 -6px 15px 6px var(--glow-color), 0 -11px 28px 10px var(--glow-color), 0 -16px 40px 13px var(--glow-color), inset 0 2px 24px 4px var(--glow-color);
+  }
+  65% {
+    box-shadow: 0 -5.5px 14.5px 5.5px var(--glow-color), 0 -10.5px 27px 9.5px var(--glow-color), 0 -15.5px 39px 12.5px var(--glow-color), inset 0 2px 23px 4.5px var(--glow-color);
+  }
+  70% {
+    box-shadow: 0 -5px 14px 5px var(--glow-color), 0 -10px 26px 9px var(--glow-color), 0 -15px 38px 12px var(--glow-color), inset 0 2px 22px 4px var(--glow-color);
+  }
+  75% {
+    box-shadow: 0 -4.5px 13px 4.5px var(--glow-color), 0 -9px 25px 8px var(--glow-color), 0 -13px 36px 11px var(--glow-color), inset 0 2px 20px 3.5px var(--glow-color);
+  }
+  80% {
+    box-shadow: 0 -4px 12px 4px var(--glow-color), 0 -8px 24px 7px var(--glow-color), 0 -12px 34px 10px var(--glow-color), inset 0 2px 18px 3px var(--glow-color);
+  }
+  85% {
+    box-shadow: 0 -3.5px 11px 3.5px var(--glow-color), 0 -7px 22px 6.5px var(--glow-color), 0 -10px 31px 9px var(--glow-color), inset 0 2px 16px 2.5px var(--glow-color);
+  }
+  90% {
+    box-shadow: 0 -3px 10px 3px var(--glow-color), 0 -6px 20px 6px var(--glow-color), 0 -9px 28px 8px var(--glow-color), inset 0 2px 14px 2px var(--glow-color);
+  }
+  95% {
+    box-shadow: 0 -2.5px 9px 2.5px var(--glow-color), 0 -5px 17px 5px var(--glow-color), 0 -7px 24px 7px var(--glow-color), inset 0 2px 12px 1.5px var(--glow-color);
+  }
+  100% {
+    box-shadow: 0 -2px 8px 2px var(--glow-color), 0 -4px 15px 4px var(--glow-color), inset 0 2px 10px 1px var(--glow-color);
+  }
+}
+
+/* Team-specific flame colors - using brighter versions for better visibility */
+/* All team flames need high z-index to appear above adjacent squares */
+.score.sf,
+.score.kc,
+.score.bal,
+.score.phi,
+.score.buf,
+.score.cin,
+.score.dal,
+.score.gb,
+.score.tb,
+.score.det,
+.score.lar,
+.score.ne,
+.score.sea,
+.score.pit,
+.score.cle,
+.score.mia,
+.score.nyj,
+.score.hou,
+.score.ind,
+.score.jax,
+.score.ten,
+.score.den,
+.score.lv,
+.score.lac,
+.score.chi,
+.score.min,
+.score.nyg,
+.score.wsh,
+.score.atl,
+.score.car,
+.score.no,
+.score.ari {
+  position: relative;
+  z-index: 100;
+  animation: flame-glow 3.5s ease-in-out infinite;
+  border-width: 2px;
+}
+
+.score.sf {
+  --glow-color: #ff3333;
+  border-color: #ff3333;
+}
+
+.score.kc { --glow-color: #ff4d5c; border-color: #ff4d5c; }
+.score.bal { --glow-color: #6b4dff; border-color: #6b4dff; }
+.score.phi { --glow-color: #00c9d7; border-color: #00c9d7; }
+.score.buf { --glow-color: #0066ff; border-color: #0066ff; }
+.score.cin { --glow-color: #ff6b2c; border-color: #ff6b2c; }
+.score.dal { --glow-color: #0066ff; border-color: #0066ff; }
+.score.gb { --glow-color: #2dff2d; border-color: #2dff2d; }
+.score.tb { --glow-color: #ff3333; border-color: #ff3333; }
+.score.det { --glow-color: #00a8ff; border-color: #00a8ff; }
+.score.lar { --glow-color: #ffbb00; border-color: #ffbb00; }
+.score.ne { --glow-color: #ff3366; border-color: #ff3366; }
+.score.sea { --glow-color: #69ff28; border-color: #69ff28; }
+.score.pit { --glow-color: #ffd700; border-color: #ffd700; }
+.score.cle { --glow-color: #ff6600; border-color: #ff6600; }
+.score.mia { --glow-color: #00d4dd; border-color: #00d4dd; }
+.score.nyj { --glow-color: #1aff7a; border-color: #1aff7a; }
+.score.hou { --glow-color: #ff3366; border-color: #ff3366; }
+.score.ind { --glow-color: #3399ff; border-color: #3399ff; }
+.score.jax { --glow-color: #ffd700; border-color: #ffd700; }
+.score.ten { --glow-color: #66b3ff; border-color: #66b3ff; }
+.score.den { --glow-color: #ff6600; border-color: #ff6600; }
+.score.lv { --glow-color: #d4d4d4; border-color: #d4d4d4; }
+.score.lac { --glow-color: #ffdd00; border-color: #ffdd00; }
+.score.chi { --glow-color: #ff6633; border-color: #ff6633; }
+.score.min { --glow-color: #a666ff; border-color: #a666ff; }
+.score.nyg { --glow-color: #4d79ff; border-color: #4d79ff; }
+.score.wsh { --glow-color: #ff6699; border-color: #ff6699; }
+.score.atl { --glow-color: #ff3366; border-color: #ff3366; }
+.score.car { --glow-color: #33bbff; border-color: #33bbff; }
+.score.no { --glow-color: #ffd966; border-color: #ffd966; }
+.score.ari { --glow-color: #ff4466; border-color: #ff4466; }

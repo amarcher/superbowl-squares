@@ -23,3 +23,15 @@
   color: #9ca3af;
   pointer-events: none;
 }
+
+/* Mobile: hide title and align grid to top */
+@media (max-width: 767px) {
+  .App::before {
+    display: none;
+  }
+
+  .App {
+    align-items: flex-start;
+    padding-top: 8px;
+  }
+}

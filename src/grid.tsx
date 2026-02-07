@@ -273,9 +273,19 @@ export default function Grid({
           typeof navigator?.canShare === 'function' &&
           navigator.canShare(sharePayload)
         ) {
-          await navigator.share(sharePayload);
-          return;
-        } else if (typeof navigator?.clipboard?.writeText === 'function') {
+          try {
+            await navigator.share(sharePayload);
+            return;
+          } catch (err) {
+            // User canceled the share - this is normal, don't show an error
+            if (err instanceof Error && err.name === 'AbortError') {
+              return;
+            }
+            // For other errors, fall through to clipboard or error toast
+          }
+        }
+
+        if (typeof navigator?.clipboard?.writeText === 'function') {
           try {
             await navigator.clipboard.writeText(secureShortURL);
             toast.success('Copied link to game');
