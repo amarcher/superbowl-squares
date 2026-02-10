@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "J39B2498YF.com.superbowlsquares.app",
+        "paths": ["*"]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["J39B2498YF.com.superbowlsquares.app"]
+  }
+}
