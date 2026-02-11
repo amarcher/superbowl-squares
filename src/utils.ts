@@ -6,13 +6,13 @@ import type Square from './types/square';
 import type Grid from './types/grid';
 import COLORS from './colors';
 
-function encodeObject(obj: object): string {
+export function encodeObject(obj: object): string {
   const str = JSON.stringify(obj);
   const encoded = encode(str);
   return encoded;
 }
 
-function decodeObject(encoded: string): object {
+export function decodeObject(encoded: string): object {
   const str = decode(encoded);
   const obj = JSON.parse(str);
   return obj;
