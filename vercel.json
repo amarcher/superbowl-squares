@@ -1,12 +1,14 @@
 {
-  "rewrites": [
+  "routes": [
     {
-      "source": "/.well-known/apple-app-site-association",
-      "destination": "/api/aasa"
+      "src": "/.well-known/apple-app-site-association",
+      "dest": "/api/aasa"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+      "src": "/api/s/([^/]+)",
+      "dest": "/api/s/[code].js?code=$1"
+    },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
