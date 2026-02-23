@@ -1,0 +1,14 @@
+{
+  "routes": [
+    {
+      "src": "/.well-known/apple-app-site-association",
+      "dest": "/api/aasa"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
