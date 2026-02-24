@@ -19,7 +19,7 @@
     "whatwg-fetch": "^3.5.0"
   },
   "engines": {
-    "node": "22.x"
+    "node": "24.x"
   },
   "scripts": {
     "start": "react-scripts start",
