@@ -2,63 +2,78 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="32x32"
-      href="%PUBLIC_URL%/favicon-32x32.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="16x16"
-      href="%PUBLIC_URL%/favicon-16x16.png"
-    />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="Run your Superbowl Squares pool for free"
-    />
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="%PUBLIC_URL%/apple-touch-icon.png"
-    />
-    <link
-      rel="manifest"
-      crossorigin="use-credentials"
-      href="%PUBLIC_URL%/site.webmanifest"
-    />
-    <link
-      rel="mask-icon"
-      href="%PUBLIC_URL%/safari-pinned-tab.svg"
-      color="#5bbad5"
-    />
-    <meta http-equiv="ScreenOrientation" content="autoRotate:disabled" />
-    <meta name="msapplication-TileColor" content="#da532c" />
-    <meta name="theme-color" content="#ffffff" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
+    <title>Superbowl Squares — Free Online Squares Pool Manager</title>
+    <meta name="description" content="Run your Super Bowl Squares pool for free. Create a 10x10 grid, assign players, randomize scores, and track the game live with ESPN score updates." />
+    <meta name="keywords" content="superbowl squares, football squares, super bowl pool, squares game, NFL squares, free football pool, super bowl party game" />
+    <meta name="author" content="Superbowl Squares" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://superbowl-squares.com" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://superbowl-squares.com" />
+    <meta property="og:title" content="Superbowl Squares — Free Online Squares Pool Manager" />
+    <meta property="og:description" content="Run your Super Bowl Squares pool for free. Create a grid, assign players, and track the game live." />
+    <meta property="og:image" content="https://superbowl-squares.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Superbowl Squares — colorful 10x10 grid with player assignments" />
+    <meta property="og:site_name" content="Superbowl Squares" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Superbowl Squares — Free Online Squares Pool Manager" />
+    <meta name="twitter:description" content="Run your Super Bowl Squares pool for free. Create a grid, assign players, and track the game live." />
+    <meta name="twitter:image" content="https://superbowl-squares.com/og-image.png" />
+
+    <!-- Theme Color & Icons -->
+    <meta name="theme-color" content="#1a1a2e" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="%PUBLIC_URL%/apple-touch-icon.png" />
+    <link rel="mask-icon" href="%PUBLIC_URL%/safari-pinned-tab.svg" color="#5bbad5" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Superbowl Squares",
+      "url": "https://superbowl-squares.com",
+      "description": "Run your Super Bowl Squares pool for free. Create a 10x10 grid, assign players, randomize scores, and track the game live.",
+      "applicationCategory": "GameApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "image": "https://superbowl-squares.com/og-image.png",
+      "inLanguage": "en",
+      "isAccessibleForFree": true
+    }
+    </script>
+
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VQH750CPXK"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VQH750CPXK');
+    </script>
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0897728874858477" crossorigin="anonymous"></script>
+
+    <!-- PWA Manifests -->
+    <link rel="manifest" crossorigin="use-credentials" href="%PUBLIC_URL%/site.webmanifest" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-
-    <script
-      async
-      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0897728874858477"
-      crossorigin="anonymous"
-    ></script>
-    <title>Superbowl Squares</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
