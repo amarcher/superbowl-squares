@@ -13,6 +13,7 @@ interface Props {
   ownerColor?: string;
   ownerTextColor?: string;
   ownerName?: string;
+  ownerAvatarUrl?: string;
   claim: (id: string) => void;
   unclaim: (id: string) => void;
   scoringScenarios?: any[];
@@ -29,6 +30,7 @@ export default function Square({
   ownerColor,
   ownerTextColor,
   ownerName,
+  ownerAvatarUrl,
   claim,
   unclaim,
   scoringScenarios = [],
@@ -144,7 +146,19 @@ export default function Square({
       className={`cell${isCurrentWinner ? ' winning' : ''}${isDepth1PotentialWinner ? ' depth-1-potential' : ''}${isDepth2PotentialWinner ? ' depth-2-potential' : ''}${isNonPotential ? ' non-potential' : ''}${showTooltip ? ' hovered' : ''}`}
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}>
-      <div className="square">{ownerName}</div>
+      <div className="square">
+        {ownerAvatarUrl ? (
+          <img
+            className="square-avatar"
+            src={ownerAvatarUrl}
+            alt={ownerName || ''}
+            loading="lazy"
+            draggable={false}
+          />
+        ) : (
+          ownerName
+        )}
+      </div>
       {probabilityDotColor && (
         <div className="probability-dot" style={{ backgroundColor: probabilityDotColor }} />
       )}
