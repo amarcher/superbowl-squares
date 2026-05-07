@@ -9,6 +9,10 @@
       "dest": "/api/s/[code].js?code=$1"
     },
     { "handle": "filesystem" },
+    {
+      "src": "/api/roster/([^/]+)",
+      "dest": "/api/roster/[id].js?id=$1"
+    },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
