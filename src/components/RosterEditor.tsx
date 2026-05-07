@@ -2,6 +2,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import Modal from '../modal';
 import COLORS from '../colors';
 import { useRoster } from '../hooks/useRoster';
+import { useBilling } from '../hooks/useBilling';
 import type RosterPlayer from '../types/rosterPlayer';
 import './RosterEditor.css';
 
@@ -12,8 +13,28 @@ interface Props {
 
 export default function RosterEditor({ isOpen, onClose }: Props) {
   const { status, roster, error, upsert, remove, generateAvatar } = useRoster();
+  const { openCheckout, openPortal } = useBilling();
+  const [billingError, setBillingError] = useState<string | undefined>(undefined);
 
   if (!isOpen) return null;
+
+  const goToCheckout = async () => {
+    setBillingError(undefined);
+    try {
+      await openCheckout();
+    } catch (err) {
+      setBillingError(err instanceof Error ? err.message : 'Checkout failed');
+    }
+  };
+
+  const goToPortal = async () => {
+    setBillingError(undefined);
+    try {
+      await openPortal();
+    } catch (err) {
+      setBillingError(err instanceof Error ? err.message : 'Portal failed');
+    }
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -32,9 +53,19 @@ export default function RosterEditor({ isOpen, onClose }: Props) {
           <p className="roster-editor-empty">Sign in to manage your roster.</p>
         )}
         {status === 'forbidden' && (
-          <p className="roster-editor-empty">
-            This account isn't on the premium allowlist yet.
-          </p>
+          <div className="roster-editor-upgrade">
+            <p>Premium unlocks saved rosters with caricature avatars.</p>
+            <button
+              type="button"
+              className="roster-action-btn primary"
+              onClick={goToCheckout}
+            >
+              Upgrade to Premium
+            </button>
+            {billingError && (
+              <p className="roster-error roster-editor-empty">{billingError}</p>
+            )}
+          </div>
         )}
         {status === 'loading' && (
           <p className="roster-editor-empty">Loading…</p>
@@ -69,6 +100,18 @@ export default function RosterEditor({ isOpen, onClose }: Props) {
               onRemove={async () => {}}
               onGenerate={generateAvatar}
             />
+            <footer className="roster-editor-footer">
+              <button
+                type="button"
+                className="roster-link-btn"
+                onClick={goToPortal}
+              >
+                Manage subscription
+              </button>
+              {billingError && (
+                <span className="roster-row-error">{billingError}</span>
+              )}
+            </footer>
           </>
         )}
       </div>

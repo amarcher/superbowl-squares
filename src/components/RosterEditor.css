@@ -150,3 +150,42 @@
   font-size: 0.75rem;
   color: #b91c1c;
 }
+
+.roster-editor-upgrade {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 8px;
+  text-align: center;
+}
+
+.roster-editor-upgrade p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.roster-editor-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 8px;
+}
+
+.roster-link-btn {
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 4px;
+  text-decoration: underline;
+}
+
+.roster-link-btn:hover {
+  color: #1f2937;
+}

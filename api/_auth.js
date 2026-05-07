@@ -1,4 +1,5 @@
 const { createClerkClient } = require('@clerk/backend');
+const { hasActiveSubscription } = require('./_subscription');
 
 let cachedClient = null;
 
@@ -25,7 +26,7 @@ function nodeRequestToWebRequest(req) {
   });
 }
 
-function isPremiumUser(userId) {
+function isAllowlistedUser(userId) {
   const allowlist = (process.env.PREMIUM_USER_IDS || '')
     .split(',')
     .map((s) => s.trim())
@@ -33,7 +34,12 @@ function isPremiumUser(userId) {
   return allowlist.includes(userId);
 }
 
-async function requirePremiumUser(req, res) {
+async function isEntitledUser(userId) {
+  if (isAllowlistedUser(userId)) return true;
+  return await hasActiveSubscription(userId);
+}
+
+async function authenticateRequest(req, res) {
   const clerk = getClerkClient();
   if (!clerk) {
     res.status(503).json({ error: 'Auth not configured' });
@@ -49,12 +55,24 @@ async function requirePremiumUser(req, res) {
     return null;
   }
 
-  if (!isPremiumUser(auth.userId)) {
+  return auth.userId;
+}
+
+async function requirePremiumUser(req, res) {
+  const userId = await authenticateRequest(req, res);
+  if (!userId) return null;
+
+  if (!(await isEntitledUser(userId))) {
     res.status(403).json({ error: 'Premium account required' });
     return null;
   }
 
-  return auth.userId;
+  return userId;
 }
 
-module.exports = { requirePremiumUser, isPremiumUser };
+module.exports = {
+  requirePremiumUser,
+  authenticateRequest,
+  isAllowlistedUser,
+  isEntitledUser,
+};
