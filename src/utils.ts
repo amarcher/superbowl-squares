@@ -1,6 +1,7 @@
 import { encode, decode } from 'universal-base64url';
 import type AppState from './types/appState';
 import type SlimAppState from './types/slimAppState';
+import type { SlimPlayer } from './types/slimAppState';
 import type Player from './types/player';
 import type Square from './types/square';
 import type Grid from './types/grid';
@@ -109,6 +110,35 @@ export function randomizeGridForOwnerIds(ownerIds: string[]) {
   );
 }
 
+function defaultColorForId(id: string): string {
+  return COLORS[parseInt(id, 10)];
+}
+
+function minifyPlayer(player: Player): SlimPlayer | undefined {
+  if (!player.name) return undefined;
+  const colorOverride =
+    player.color && player.color !== defaultColorForId(player.id);
+  if (player.avatarUrl || colorOverride) {
+    const obj: { n: string; c?: string; a?: string } = { n: player.name };
+    if (colorOverride) obj.c = player.color;
+    if (player.avatarUrl) obj.a = player.avatarUrl;
+    return obj;
+  }
+  return player.name;
+}
+
+function magnifyPlayer(value: SlimPlayer, id: string): Player {
+  if (typeof value === 'string') {
+    return { id, name: value, color: defaultColorForId(id) };
+  }
+  return {
+    id,
+    name: value.n,
+    color: value.c || defaultColorForId(id),
+    ...(value.a ? { avatarUrl: value.a } : {}),
+  };
+}
+
 export function minify({
   grid,
   awayScore,
@@ -119,12 +149,12 @@ export function minify({
   gameId,
 }: AppState): SlimAppState {
   const slimPlayers = Object.values(players).reduce(
-    (namedPlayers: Record<string, string>, player: Player) => {
-      if (!player.name) return namedPlayers;
-      namedPlayers[player.id] = player.name;
+    (namedPlayers: Record<string, SlimPlayer>, player: Player) => {
+      const slim = minifyPlayer(player);
+      if (slim !== undefined) namedPlayers[player.id] = slim;
       return namedPlayers;
     },
-    {} as Record<string, string>,
+    {} as Record<string, SlimPlayer>,
   );
 
   const slimGrid = Object.values(grid).reduce(
@@ -159,8 +189,11 @@ export function magnify({
   const largeAndBeautifulPlayers =
     Object.entries(players).length > 0
       ? Object.entries(players).reduce(
-          (allPlayers, [playerId, playerName]) => {
-            allPlayers[playerId].name = playerName;
+          (allPlayers, [playerId, slim]) => {
+            allPlayers[playerId] = {
+              ...allPlayers[playerId],
+              ...magnifyPlayer(slim, playerId),
+            };
             return allPlayers;
           },
           { ...EMPTY_PLAYERS },

@@ -80,6 +80,36 @@
   border-color: #111827;
 }
 
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.player-row .player-input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.roster-pick-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #1f2937;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.roster-pick-btn:hover {
+  background: #e5e7eb;
+  border-color: #2563eb;
+}
+
 .game-input {
   display: block;
   width: 100%;

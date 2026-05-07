@@ -273,3 +273,16 @@
   border-radius: 50%;
   pointer-events: none;
 }
+
+.square-avatar {
+  position: absolute;
+  inset: 2px;
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
+  object-fit: cover;
+  border-radius: 4px;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}

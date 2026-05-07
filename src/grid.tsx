@@ -614,6 +614,7 @@ export default function Grid({
           const {
             color,
             name,
+            avatarUrl,
           } = players[ownerId!] || {};
           const square = (
             <Square
@@ -622,6 +623,7 @@ export default function Grid({
               ownerTextColor={ownerId !== undefined ? PLAYER_COLORS[ownerId]?.text : undefined}
               id={id}
               ownerName={name}
+              ownerAvatarUrl={avatarUrl}
               claim={claim}
               unclaim={unclaim}
               isCurrentWinner={
