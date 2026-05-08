@@ -44,7 +44,7 @@ Do these in order; later steps reference values from earlier ones.
 
 ### 1b. Copy the API keys
 
-You should land on the **API Keys** page. If not: left sidebar → **Configure** → **API Keys**.
+You should land on the **API Keys** page. If not: left sidebar → **Configure → Developers → API keys** (in newer Clerk UIs the **Developers** section is collapsed inside **Configure**).
 
 You'll see two values you need:
 
@@ -53,12 +53,21 @@ You'll see two values you need:
 
 Stash these in a scratch buffer; we'll paste them into Vercel later.
 
-### 1c. Set allowed origins (so the SDK accepts requests from prod)
+### 1c. Domain configuration — only needed when you go to Production
 
-1. Left sidebar → **Configure** → **Domains**.
-2. Under **Allowed origins**, add `https://superbowl-squares.com`.
-3. (Optional, for local dev) Add `http://localhost:3000`.
-4. **Save**.
+You can **skip this section** for the alpha. Clerk creates two instances per application:
+
+- **Development** (default; uses `pk_test_…` / `sk_test_…`) — accepts requests from **any origin** with no configuration. The instance selector in the top bar will show an orange "Development" pill.
+- **Production** (uses `pk_live_…` / `sk_live_…`) — requires you to explicitly add the production domain.
+
+If you ever switch to a Production instance:
+
+1. Top bar → click the instance selector (next to your application name) → **Create production instance**.
+2. After it's created, left sidebar → **Configure → Developers → Domains** → **Primary** tab → enter `superbowl-squares.com`. Clerk will give you DNS records to verify domain ownership; add them in your registrar.
+3. Get fresh `pk_live_…` / `sk_live_…` keys from the API keys page (these are different from your test keys).
+4. Replace the three Clerk env vars in Vercel with the live values and redeploy.
+
+The **Allowed Subdomains** tab and the various banners about "feature not available on development instances" are unrelated to what we need — leave them alone.
 
 ### 1d. Save off your own Clerk userId for self-testing
 
