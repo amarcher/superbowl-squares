@@ -1,6 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useAuthBridge } from '../auth/AuthBridgeContext';
-import { isAuthConfigured } from '../auth/AuthProvider';
 import type RosterPlayer from '../types/rosterPlayer';
 import { downscaleToWebp, blobToBase64 } from '../utils/imageUtils';
 
@@ -29,15 +35,22 @@ const noopGenerate = async (): Promise<{ avatarUrl: string; remaining: number }>
   throw new Error('Auth not configured');
 };
 
-function useRosterNoop(): UseRoster {
-  return {
-    status: 'unconfigured',
-    roster: [],
-    refresh: async () => {},
-    upsert: noopUpsert,
-    remove: async () => {},
-    generateAvatar: noopGenerate,
-  };
+const NOOP_ROSTER: UseRoster = {
+  status: 'unconfigured',
+  roster: [],
+  refresh: async () => {},
+  upsert: noopUpsert,
+  remove: async () => {},
+  generateAvatar: noopGenerate,
+};
+
+// Lifted state: every consumer of useRoster reads from this single
+// context, so adding a player in RosterEditor is immediately visible
+// to RosterPicker (rendered inside EditPlayers) without refetching.
+export const RosterStateContext = createContext<UseRoster>(NOOP_ROSTER);
+
+export function useRoster(): UseRoster {
+  return useContext(RosterStateContext);
 }
 
 async function readApiError(res: Response): Promise<string> {
@@ -56,11 +69,10 @@ async function readApiError(res: Response): Promise<string> {
   return `HTTP ${res.status}`;
 }
 
-function useRosterReal(): UseRoster {
-  // Reads from a context bridge populated by PremiumChunk. The previous
-  // direct dependency on @clerk/clerk-react's useAuth was the reason
-  // Clerk's runtime ended up in the main bundle even when this file
-  // wasn't on the active code path.
+// Hosted exactly once by RosterStateProvider in PremiumChunk so that
+// the hook's useState lives in one place. Per-component instances of
+// useRoster() read from RosterStateContext.
+export function useRosterReal(): UseRoster {
   const { isLoaded, isSignedIn, getToken } = useAuthBridge();
   const getTokenRef = useRef(getToken);
   getTokenRef.current = getToken;
@@ -88,7 +100,7 @@ function useRosterReal(): UseRoster {
       setRoster([]);
       return;
     }
-    setStatus('loading');
+    setStatus((prev) => (prev === 'ready' ? prev : 'loading'));
     setError(undefined);
     try {
       const res = await authedFetch('/api/roster/list');
@@ -164,9 +176,3 @@ function useRosterReal(): UseRoster {
 
   return { status, roster, error, refresh, upsert, remove, generateAvatar };
 }
-
-// Resolved at module load so each component gets one consistent hook
-// implementation for its entire lifetime — preserves rules-of-hooks.
-export const useRoster: () => UseRoster = isAuthConfigured()
-  ? useRosterReal
-  : useRosterNoop;
