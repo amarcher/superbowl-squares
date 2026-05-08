@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { isAuthConfigured } from '../auth/AuthProvider';
 import type RosterPlayer from '../types/rosterPlayer';
@@ -40,30 +40,49 @@ function useRosterNoop(): UseRoster {
   };
 }
 
+async function readApiError(res: Response): Promise<string> {
+  try {
+    const body = await res.json();
+    if (body && typeof body === 'object') {
+      const err = (body as { error?: string }).error;
+      const msg = (body as { message?: string }).message;
+      if (err && msg) return `${err}: ${msg}`;
+      if (err) return err;
+      if (msg) return msg;
+    }
+  } catch {
+    // body wasn't JSON
+  }
+  return `HTTP ${res.status}`;
+}
+
 function useRosterReal(): UseRoster {
-  const auth = useAuth();
+  // Destructure stable primitives + the getToken function. Whole `auth`
+  // object is a fresh reference each render, so depending on it would
+  // re-create authedFetch every render -> infinite useEffect loop.
+  const { isLoaded, isSignedIn, getToken } = useAuth();
+  const getTokenRef = useRef(getToken);
+  getTokenRef.current = getToken;
+
   const [status, setStatus] = useState<RosterStatus>('loading');
   const [roster, setRoster] = useState<RosterPlayer[]>([]);
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const authedFetch = useCallback(
-    async (path: string, init?: RequestInit) => {
-      const token = await auth.getToken();
-      if (!token) throw new Error('Not signed in');
-      return fetch(path, {
-        ...init,
-        headers: {
-          ...(init?.headers || {}),
-          Authorization: `Bearer ${token}`,
-        },
-      });
-    },
-    [auth],
-  );
+  const authedFetch = useCallback(async (path: string, init?: RequestInit) => {
+    const token = await getTokenRef.current();
+    if (!token) throw new Error('Not signed in');
+    return fetch(path, {
+      ...init,
+      headers: {
+        ...(init?.headers || {}),
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }, []);
 
   const refresh = useCallback(async () => {
-    if (!auth.isLoaded) return;
-    if (!auth.isSignedIn) {
+    if (!isLoaded) return;
+    if (!isSignedIn) {
       setStatus('signed-out');
       setRoster([]);
       return;
@@ -77,7 +96,9 @@ function useRosterReal(): UseRoster {
         setRoster([]);
         return;
       }
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        throw new Error(await readApiError(res));
+      }
       const data = await res.json();
       setRoster(data.roster || []);
       setStatus('ready');
@@ -85,7 +106,7 @@ function useRosterReal(): UseRoster {
       setError(err instanceof Error ? err.message : 'Failed to load roster');
       setStatus('error');
     }
-  }, [auth.isLoaded, auth.isSignedIn, authedFetch]);
+  }, [isLoaded, isSignedIn, authedFetch]);
 
   useEffect(() => {
     refresh();
@@ -98,10 +119,7 @@ function useRosterReal(): UseRoster {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(entry),
       });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `HTTP ${res.status}`);
-      }
+      if (!res.ok) throw new Error(await readApiError(res));
       const { entry: saved } = await res.json();
       setRoster((prev) => {
         const idx = prev.findIndex((p) => p.id === saved.id);
@@ -122,10 +140,7 @@ function useRosterReal(): UseRoster {
       const res = await authedFetch(`/api/roster/${encodeURIComponent(id)}`, {
         method: 'DELETE',
       });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `HTTP ${res.status}`);
-      }
+      if (!res.ok) throw new Error(await readApiError(res));
       setRoster((prev) => prev.filter((p) => p.id !== id));
     },
     [authedFetch],
@@ -140,10 +155,7 @@ function useRosterReal(): UseRoster {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageBase64: base64, contentType: 'image/webp' }),
       });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `HTTP ${res.status}`);
-      }
+      if (!res.ok) throw new Error(await readApiError(res));
       return res.json();
     },
     [authedFetch],

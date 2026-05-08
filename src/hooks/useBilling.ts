@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { isAuthConfigured } from '../auth/AuthProvider';
 
@@ -19,38 +19,37 @@ function useBillingNoop(): UseBilling {
 }
 
 function useBillingReal(): UseBilling {
-  const auth = useAuth();
+  const { getToken } = useAuth();
+  const getTokenRef = useRef(getToken);
+  getTokenRef.current = getToken;
 
-  const authedFetch = useCallback(
-    async (path: string) => {
-      const token = await auth.getToken();
-      if (!token) throw new Error('Not signed in');
-      const res = await fetch(path, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `HTTP ${res.status}`);
-      }
-      return res.json();
-    },
-    [auth],
-  );
+  const authedPost = useCallback(async (path: string) => {
+    const token = await getTokenRef.current();
+    if (!token) throw new Error('Not signed in');
+    const res = await fetch(path, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || `HTTP ${res.status}`);
+    }
+    return res.json();
+  }, []);
 
   const openCheckout = useCallback(async () => {
-    const { url } = await authedFetch('/api/billing/checkout');
+    const { url } = await authedPost('/api/billing/checkout');
     if (typeof url === 'string') {
       window.location.href = url;
     }
-  }, [authedFetch]);
+  }, [authedPost]);
 
   const openPortal = useCallback(async () => {
-    const { url } = await authedFetch('/api/billing/portal');
+    const { url } = await authedPost('/api/billing/portal');
     if (typeof url === 'string') {
       window.location.href = url;
     }
-  }, [authedFetch]);
+  }, [authedPost]);
 
   return { openCheckout, openPortal };
 }
