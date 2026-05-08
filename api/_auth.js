@@ -20,10 +20,16 @@ function nodeRequestToWebRequest(req) {
   const host = req.headers.host || 'localhost';
   const protocol = req.headers['x-forwarded-proto'] || 'https';
   const url = `${protocol}://${host}${req.url}`;
-  return new Request(url, {
-    method: req.method,
-    headers: new Headers(req.headers),
-  });
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(req.headers)) {
+    if (value === undefined) continue;
+    if (Array.isArray(value)) {
+      for (const v of value) headers.append(key, v);
+    } else {
+      headers.set(key, String(value));
+    }
+  }
+  return new Request(url, { method: req.method, headers });
 }
 
 function isAllowlistedUser(userId) {
@@ -46,12 +52,37 @@ async function authenticateRequest(req, res) {
     return null;
   }
 
-  const webRequest = nodeRequestToWebRequest(req);
-  const requestState = await clerk.authenticateRequest(webRequest);
-  const auth = requestState.toAuth();
+  let requestState;
+  try {
+    const webRequest = nodeRequestToWebRequest(req);
+    requestState = await clerk.authenticateRequest(webRequest);
+  } catch (err) {
+    console.error('clerk.authenticateRequest threw:', err);
+    res.status(500).json({
+      error: 'auth_threw',
+      message: err && err.message ? err.message : String(err),
+    });
+    return null;
+  }
+
+  let auth;
+  try {
+    auth = requestState.toAuth();
+  } catch (err) {
+    console.error('requestState.toAuth threw:', err);
+    res.status(500).json({
+      error: 'toAuth_threw',
+      message: err && err.message ? err.message : String(err),
+    });
+    return null;
+  }
 
   if (!auth || !auth.userId) {
-    res.status(401).json({ error: 'Unauthorized' });
+    res.status(401).json({
+      error: 'Unauthorized',
+      reason: requestState && requestState.reason ? requestState.reason : null,
+      status: requestState && requestState.status ? requestState.status : null,
+    });
     return null;
   }
 
@@ -62,7 +93,19 @@ async function requirePremiumUser(req, res) {
   const userId = await authenticateRequest(req, res);
   if (!userId) return null;
 
-  if (!(await isEntitledUser(userId))) {
+  let entitled;
+  try {
+    entitled = await isEntitledUser(userId);
+  } catch (err) {
+    console.error('isEntitledUser threw:', err);
+    res.status(500).json({
+      error: 'entitlement_check_threw',
+      message: err && err.message ? err.message : String(err),
+    });
+    return null;
+  }
+
+  if (!entitled) {
     res.status(403).json({ error: 'Premium account required' });
     return null;
   }
