@@ -144,11 +144,11 @@
 }
 
 .roster-row-error {
-  position: absolute;
-  bottom: -16px;
-  left: 8px;
-  font-size: 0.75rem;
+  grid-column: 1 / -1;
+  font-size: 0.8rem;
   color: #b91c1c;
+  padding: 6px 8px 0 8px;
+  font-weight: 500;
 }
 
 .roster-editor-upgrade {
