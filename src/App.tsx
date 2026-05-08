@@ -4,7 +4,6 @@ import { LOCAL_STORAGE_KEY } from './constants';
 import { readStateFromUrl, magnify, decodeObject } from './utils';
 import { resolveShortCode } from './linkShortener';
 import { AuthProvider } from './auth/AuthProvider';
-import { SignInBadge } from './auth/SignInBadge';
 import './App.css';
 import { Toaster } from 'react-hot-toast';
 import type AppState from './types/appState';
@@ -70,7 +69,6 @@ function App() {
   return (
     <AuthProvider>
       <div className="App">
-        <SignInBadge />
         <Grid
           initialGridState={appState.grid}
           initialHomeScore={appState.homeScore}

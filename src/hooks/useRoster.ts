@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuthBridge } from '../auth/AuthBridgeContext';
 import { isAuthConfigured } from '../auth/AuthProvider';
 import type RosterPlayer from '../types/rosterPlayer';
 import { downscaleToWebp, blobToBase64 } from '../utils/imageUtils';
@@ -57,10 +57,11 @@ async function readApiError(res: Response): Promise<string> {
 }
 
 function useRosterReal(): UseRoster {
-  // Destructure stable primitives + the getToken function. Whole `auth`
-  // object is a fresh reference each render, so depending on it would
-  // re-create authedFetch every render -> infinite useEffect loop.
-  const { isLoaded, isSignedIn, getToken } = useAuth();
+  // Reads from a context bridge populated by PremiumChunk. The previous
+  // direct dependency on @clerk/clerk-react's useAuth was the reason
+  // Clerk's runtime ended up in the main bundle even when this file
+  // wasn't on the active code path.
+  const { isLoaded, isSignedIn, getToken } = useAuthBridge();
   const getTokenRef = useRef(getToken);
   getTokenRef.current = getToken;
 

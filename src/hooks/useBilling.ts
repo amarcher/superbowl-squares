@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuthBridge } from '../auth/AuthBridgeContext';
 import { isAuthConfigured } from '../auth/AuthProvider';
 
 export interface UseBilling {
@@ -19,7 +19,7 @@ function useBillingNoop(): UseBilling {
 }
 
 function useBillingReal(): UseBilling {
-  const { getToken } = useAuth();
+  const { getToken } = useAuthBridge();
   const getTokenRef = useRef(getToken);
   getTokenRef.current = getToken;
 
