@@ -54,7 +54,7 @@ module.exports = async function handler(req, res) {
       input: {
         prompt: CARICATURE_PROMPT,
         input_image: dataUrl,
-        output_format: 'webp',
+        output_format: 'png',
         safety_tolerance: 2,
       },
     });
@@ -67,11 +67,11 @@ module.exports = async function handler(req, res) {
     const generatedBuffer = Buffer.from(await blob.arrayBuffer());
 
     const uploaded = await put(
-      `roster-avatars/${userId}/avatar.webp`,
+      `roster-avatars/${userId}/avatar.png`,
       generatedBuffer,
       {
         access: 'public',
-        contentType: 'image/webp',
+        contentType: 'image/png',
         addRandomSuffix: true,
         cacheControlMaxAge: 60 * 60 * 24 * 365,
       },
