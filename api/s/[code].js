@@ -1,9 +1,4 @@
-const { Redis } = require('@upstash/redis');
-
-const redis = new Redis({
-  url: process.env.KV_REST_API_URL,
-  token: process.env.KV_REST_API_TOKEN,
-});
+const { redis } = require('../_redis');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
