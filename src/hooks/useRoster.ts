@@ -46,7 +46,7 @@ const NOOP_ROSTER: UseRoster = {
 
 // Lifted state: every consumer of useRoster reads from this single
 // context, so adding a player in RosterEditor is immediately visible
-// to RosterPicker (rendered inside EditPlayers) without refetching.
+// inside the EditPlayers roster strip and typeahead without refetching.
 export const RosterStateContext = createContext<UseRoster>(NOOP_ROSTER);
 
 export function useRoster(): UseRoster {

@@ -57,57 +57,298 @@
   cursor: pointer;
 }
 
-.player-input {
+/* Edit-players modal: roster strip across the top */
+.ep-roster-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 4px 12px 4px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.ep-roster-strip-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ep-roster-strip-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ep-roster-chip {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 64px;
+  padding: 6px 4px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: border-color 0.15s, transform 0.05s;
+}
+
+.ep-roster-chip:hover:not(:disabled) {
+  border-color: #2563eb;
+}
+
+.ep-roster-chip:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.ep-roster-chip.used,
+.ep-roster-chip:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.ep-roster-chip-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.ep-roster-chip-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ep-roster-chip-name {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #1f2937;
+  max-width: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Edit-players modal: rows */
+.ep-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ep-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ep-row-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ep-avatar {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: none;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.ep-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ep-avatar:disabled {
+  cursor: default;
+}
+
+.ep-avatar-lock {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: 0.65rem;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border-top-left-radius: 6px;
+  padding: 1px 3px;
+  line-height: 1;
+}
+
+.ep-avatar-spinner {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 8px;
+}
+
+.ep-avatar-spinner::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: ep-spin 0.7s linear infinite;
+}
+
+@keyframes ep-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ep-file-input {
+  display: none;
+}
+
+.ep-name-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.ep-name {
   display: block;
   width: 100%;
   padding: 8px 12px;
-  margin-bottom: 8px;
   font-size: 18px;
   font-weight: 600;
-  /* color set via inline style for A11Y contrast */
-  border: 1px solid transparent;
+  color: #1f2937;
+  background: #fff;
+  border: 1px solid #d1d5db;
   border-radius: 6px;
   outline: none;
   box-sizing: border-box;
 }
 
-.player-input::placeholder {
-  color: inherit;
-  opacity: 0.6;
+.ep-name::placeholder {
+  color: #9ca3af;
 }
 
-.player-input:focus {
+.ep-name:focus {
   border-color: #111827;
 }
 
-.player-row {
+.ep-typeahead {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 5;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.ep-typeahead-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  background: #fff;
+  font-size: 0.9rem;
+  color: #1f2937;
+  cursor: pointer;
+  text-align: left;
 }
 
-.player-row .player-input {
-  flex: 1;
-  margin-bottom: 0;
+.ep-typeahead-item:hover {
+  background: #f3f4f6;
 }
 
-.roster-pick-btn {
+.ep-typeahead-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.ep-typeahead-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ep-save-btn {
   flex-shrink: 0;
   width: 36px;
   height: 36px;
   border-radius: 6px;
-  border: 1px solid #d1d5db;
-  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #9ca3af;
   font-size: 1.1rem;
   cursor: pointer;
-  color: #1f2937;
-  transition: background 0.15s, border-color 0.15s;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
-.roster-pick-btn:hover {
-  background: #e5e7eb;
-  border-color: #2563eb;
+.ep-save-btn:hover:not(:disabled) {
+  color: #f59e0b;
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.ep-save-btn.saved {
+  color: #f59e0b;
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.ep-save-btn:disabled {
+  cursor: default;
+}
+
+.ep-row-error {
+  font-size: 0.75rem;
+  color: #b91c1c;
+  padding-left: 48px;
 }
 
 .game-input {
