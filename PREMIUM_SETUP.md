@@ -238,7 +238,7 @@ If all five steps pass, the foundation is sound and you can move on to billing. 
 
 ### 6a. Create the product and price
 
-1. Open <https://dashboard.stripe.com>. **Make sure you're in Test mode** (toggle in top-right; it should say "Test mode" or "Viewing test data").
+1. Open <https://dashboard.stripe.com>. **Make sure you're in Test mode** (newer Stripe accounts use **Sandboxes** — look for the workspace switcher in the top bar; pick or create a Sandbox. Older accounts have a "Test mode" toggle in the top right). When in test/sandbox mode, the URL contains `/test/` and a banner at the top reads "You're testing in a sandbox" or similar.
 2. Left sidebar: **Catalog → Products** (older UI: just **Products**).
 3. **+ Add product**.
 4. Name: `Superbowl Squares Premium`
@@ -255,24 +255,32 @@ If all five steps pass, the foundation is sound and you can move on to billing. 
 1. Left sidebar: **Developers → API Keys**.
 2. Find **Secret key**. Click **Reveal test key**. Copy the value (starts with `sk_test_…`).
 
-### 6c. Create the webhook (this is the load-bearing piece)
+### 6c. Create the webhook event destination (this is the load-bearing piece)
 
 The webhook is what flips your app's "this user has paid" state to true after a checkout completes. Without it, payments succeed but your app never knows.
 
-1. Left sidebar: **Developers → Webhooks**.
-2. **+ Add endpoint**.
-3. Endpoint URL:
+> Stripe recently renamed **Webhooks → Event destinations** and turned the single-page form into a wizard. Same thing under the hood. If you land on a page titled "Webhooks" or "Event destinations" you're in the right place.
 
-   ```
-   https://superbowl-squares.com/api/billing/webhook
-   ```
-4. **Listen to events on your account** (default).
-5. **Events to send** — click **+ Select events** and check exactly these three:
-   - `customer.subscription.created`
-   - `customer.subscription.updated`
-   - `customer.subscription.deleted`
-6. **Add endpoint**.
-7. On the webhook detail page, find **Signing secret** → click **Reveal** → copy (starts with `whsec_…`). This is your `STRIPE_WEBHOOK_SECRET`.
+1. Left sidebar: **Developers → Webhooks** (or **Workbench → Webhooks** in newer dashboards) → click **+ Add destination** / **+ Create event destination**.
+2. **Step 1 — Select events:**
+   - Leave **Your account** selected as the event destination scope.
+   - Leave the **API version** at the default.
+   - In the **Find event by name or description…** search box, type `customer.subscription`.
+   - Check exactly these three:
+     - `customer.subscription.created`
+     - `customer.subscription.updated`
+     - `customer.subscription.deleted`
+   - Click **Continue**.
+3. **Step 2 — Choose destination type:** pick **Webhook endpoint** (the plain-URL option). Skip cloud destinations like AWS EventBridge / Snowflake.
+4. **Step 3 — Configure your destination:**
+   - Endpoint URL:
+
+     ```
+     https://superbowl-squares.com/api/billing/webhook
+     ```
+   - Description (optional): `Subscription state sync for premium roster`
+   - Click **Create destination** / **Save**.
+5. On the destination detail page, find **Signing secret** → click **Reveal** → copy (starts with `whsec_…`). This is your `STRIPE_WEBHOOK_SECRET`.
 
 ### 6d. (Optional) Enable customer portal
 
@@ -332,7 +340,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 
 ### 8c. Verify the webhook is receiving events
 
-Stripe dashboard → **Developers → Webhooks → click your endpoint → "Webhook attempts"** tab. You should see the events from the test above with **200** responses. If you see 400 ("Webhook Error: signature verification failed"), the `STRIPE_WEBHOOK_SECRET` is wrong — paste it again.
+Stripe dashboard → **Workbench → Events** (or **Developers → Events** in older dashboards) → look for the `customer.subscription.created` events from the test above. Each row will show the response status from your endpoint. You should see **200**s. If you see **400 "Webhook Error: signature verification failed"**, the `STRIPE_WEBHOOK_SECRET` is wrong — re-copy it from the destination detail page (rotating the secret in Stripe also breaks any previously stored value).
 
 ---
 
@@ -364,7 +372,7 @@ Clerk has a similar `Test → Live` flip — if you do that, the Clerk publishab
 The user is authenticated but not entitled. Either:
 - Add their userId to `PREMIUM_USER_IDS`, **or**
 - They need to complete a Stripe checkout, **or**
-- The webhook isn't firing — check Stripe → Webhooks → your endpoint → "Webhook attempts" tab.
+- The webhook isn't firing — check Stripe → **Workbench → Events** for the relevant `customer.subscription.*` event and inspect its response.
 
 ### Avatar generation fails with `Generation failed`
 
