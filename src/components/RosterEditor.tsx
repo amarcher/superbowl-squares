@@ -175,18 +175,32 @@ function RosterRow({ entry, isNew, onSave, onRemove, onGenerate }: RowProps) {
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       e.target.value = '';
-      if (!file) return;
+      console.log('[roster] handleFile', {
+        hasFile: !!file,
+        size: file?.size,
+        type: file?.type,
+        name: name.trim(),
+      });
+      if (!file) {
+        console.warn('[roster] no file selected');
+        return;
+      }
       if (!name.trim()) {
+        console.warn('[roster] name required before generating');
         setRowError('Add a name first');
         return;
       }
       setBusy(true);
       setRowError(undefined);
       try {
+        console.log('[roster] calling onGenerate');
         const { avatarUrl: newUrl } = await onGenerate(file);
+        console.log('[roster] onGenerate returned', newUrl);
         setAvatarUrl(newUrl);
         await save({ avatarUrl: newUrl });
+        console.log('[roster] save complete');
       } catch (err) {
+        console.error('[roster] generation failed', err);
         setRowError(err instanceof Error ? err.message : 'Generation failed');
       } finally {
         setBusy(false);
