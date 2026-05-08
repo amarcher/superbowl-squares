@@ -1,9 +1,31 @@
+// Decode an image File into an ImageBitmap. Falls back to a JS-based
+// HEIC/HEIF decoder for formats Chrome can't decode natively (iPhone
+// photos default to HEIC). The fallback is dynamic-imported only when
+// the native call fails, so non-HEIC users don't pay the bundle cost.
+async function decodeImage(file: File): Promise<ImageBitmap> {
+  try {
+    return await createImageBitmap(file);
+  } catch (originalErr) {
+    try {
+      const { heicTo } = await import('heic-to');
+      const jpegBlob = await heicTo({
+        blob: file,
+        type: 'image/jpeg',
+        quality: 0.9,
+      });
+      return await createImageBitmap(jpegBlob as Blob);
+    } catch {
+      throw originalErr;
+    }
+  }
+}
+
 export async function downscaleToWebp(
   file: File,
   maxSize: number = 512,
   quality: number = 0.7,
 ): Promise<Blob> {
-  const bitmap = await createImageBitmap(file);
+  const bitmap = await decodeImage(file);
   const { width: srcW, height: srcH } = bitmap;
   const minSide = Math.min(srcW, srcH);
   const scale = Math.min(1, maxSize / minSide);
